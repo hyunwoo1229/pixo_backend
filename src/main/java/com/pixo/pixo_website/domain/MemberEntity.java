@@ -19,6 +19,7 @@ public class MemberEntity {
     private String password;
     private String name;
     private String phoneNumber;
+    private String provider;
     private String refreshToken;
 
     public void updateRefreshToken(String refreshToken) {

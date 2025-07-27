@@ -1,0 +1,40 @@
+package com.pixo.pixo_website.controller;
+
+import com.pixo.pixo_website.dto.MemberDto;
+import com.pixo.pixo_website.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
+
+public class AuthController {
+    private final AuthService authService;
+
+    //로그인
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody MemberDto dto) {
+        return authService.login(dto);
+    }
+
+    //로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        return authService.logout(request);
+    }
+
+    //refresToken으로 accessToken 재발급
+    @PostMapping("/reissue")
+    public ResponseEntity<?> reissue(@RequestBody Map<String, String> body) {
+        String refreshToken = body.get("refreshToken");
+        return authService.reissue(refreshToken);
+    }
+}
