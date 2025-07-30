@@ -1,6 +1,6 @@
 package com.pixo.pixo_website.service;
 
-import com.pixo.pixo_website.domain.MemberEntity;
+import com.pixo.pixo_website.domain.Member;
 import com.pixo.pixo_website.dto.ErrorResponse;
 import com.pixo.pixo_website.dto.MemberDto;
 import com.pixo.pixo_website.dto.SuccessResponse;
@@ -28,7 +28,7 @@ public class AuthService {
 
     @Transactional
     public ResponseEntity<?> login(MemberDto dto) {
-        Optional<MemberEntity> optionalMember = memberRepository.findByLoginId(dto.getLoginId());
+        Optional<Member> optionalMember = memberRepository.findByLoginId(dto.getLoginId());
 
         if (optionalMember.isEmpty()) {
             return ResponseEntity
@@ -36,7 +36,7 @@ public class AuthService {
                     .body(new ErrorResponse("존재하지 않는 아이디입니다"));
         }
 
-        MemberEntity member = optionalMember.get();
+        Member member = optionalMember.get();
 
         if (!passwordEncoder.matches(dto.getPassword(), member.getPassword())) {
             return ResponseEntity
@@ -81,11 +81,11 @@ public class AuthService {
         }
 
         // 2. DB에서 토큰을 찾아보고, 없을 경우 401 에러를 명시적으로 반환
-        Optional<MemberEntity> memberOptional = memberRepository.findByRefreshToken(refreshToken);
+        Optional<Member> memberOptional = memberRepository.findByRefreshToken(refreshToken);
         if (memberOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse("제공된 Refresh Token과 일치하는 사용자가 없습니다."));
         }
-        MemberEntity member = memberOptional.get();
+        Member member = memberOptional.get();
 
         // 3. 새로운 토큰 생성 (Access Token + Refresh Token 둘 다)
         String newAccessToken = jwtTokenProvider.createAccessToken(member.getLoginId());

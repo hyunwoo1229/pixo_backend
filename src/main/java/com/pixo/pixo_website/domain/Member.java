@@ -1,17 +1,16 @@
 package com.pixo.pixo_website.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+
 
 @Getter
 @Setter
 @Entity
 
-public class MemberEntity {
+public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,6 +20,9 @@ public class MemberEntity {
     private String phoneNumber;
     private String provider;
     private String refreshToken;
+
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.USER; // 기본값: 일반 사용자
 
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;

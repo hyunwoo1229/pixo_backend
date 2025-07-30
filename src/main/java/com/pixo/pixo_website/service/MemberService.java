@@ -1,6 +1,6 @@
 package com.pixo.pixo_website.service;
 
-import com.pixo.pixo_website.domain.MemberEntity;
+import com.pixo.pixo_website.domain.Member;
 import com.pixo.pixo_website.dto.ChangePasswordRequest;
 import com.pixo.pixo_website.dto.ErrorResponse;
 import com.pixo.pixo_website.dto.MemberDto;
@@ -29,7 +29,7 @@ public class MemberService {
                     .body(new ErrorResponse("이미 존재하는 아이디입니다"));
         }
 
-        MemberEntity member = new MemberEntity();
+        Member member = new Member();
         member.setLoginId(dto.getLoginId());
         member.setPassword(passwordEncoder.encode(dto.getPassword()));
         member.setName(dto.getName());
@@ -50,7 +50,7 @@ public class MemberService {
 
         String loginId = authentication.getName();
 
-        MemberEntity member = memberRepository.findByLoginId(loginId)
+        Member member = memberRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new IllegalArgumentException("로그인한 사용자를 찾을 수 없습니다."));
 
         member.setName(dto.getName());
@@ -62,7 +62,7 @@ public class MemberService {
     //비밀번호 변경
     public void changePassword(ChangePasswordRequest req, Authentication auth) {
         String loginId = (String) auth.getPrincipal();
-        MemberEntity member = memberRepository.findByLoginId(loginId)
+        Member member = memberRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 사용자입니다."));
         if(!passwordEncoder.matches(req.getOldPassword(), member.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");

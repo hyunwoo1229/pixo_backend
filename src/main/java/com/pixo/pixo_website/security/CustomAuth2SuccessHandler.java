@@ -1,6 +1,6 @@
 package com.pixo.pixo_website.security;
 
-import com.pixo.pixo_website.domain.MemberEntity;
+import com.pixo.pixo_website.domain.Member;
 import com.pixo.pixo_website.repository.MemberRepository;
 import com.pixo.pixo_website.security.jwt.JwtTokenProvider;
 import jakarta.servlet.ServletException;
@@ -45,9 +45,9 @@ public class CustomAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String loginId = extractLoginId(oAuth2User, provider);
 
         // 사용자 정보가 DB에 없다면 회원가입 처리
-        Optional<MemberEntity> existing = memberRepository.findByLoginId(loginId);
-        MemberEntity user = existing.orElseGet(() -> {
-            MemberEntity newMember = new MemberEntity();
+        Optional<Member> existing = memberRepository.findByLoginId(loginId);
+        Member user = existing.orElseGet(() -> {
+            Member newMember = new Member();
             newMember.setLoginId(loginId);
             newMember.setPassword(null);
             newMember.setName(null);
