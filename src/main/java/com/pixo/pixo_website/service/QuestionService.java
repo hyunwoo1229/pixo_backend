@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -37,8 +38,8 @@ public class QuestionService {
     }
 
     @Transactional
-    public void updateQuestion(Long id, QuestionRequestDto dto, Member member) {
-        Question question = questionRepository.findById(id)
+    public void updateQuestion(Long questionId, QuestionRequestDto dto, Member member) {
+        Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "문의글이 존재하지 않습니다."));
         if (!question.getMember().getId().equals(member.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인이 작성한 문의글만 수정할 수 있습니다.");
@@ -46,12 +47,13 @@ public class QuestionService {
 
         question.setTitle(dto.getTitle());
         question.setContent(dto.getContent());
+        question.setUpdatedAt(LocalDateTime.now());
         questionRepository.save(question);
     }
 
     @Transactional
-    public void deleteQuestion(Long id, Member member) {
-        Question question = questionRepository.findById(id)
+    public void deleteQuestion(Long questionId, Member member) {
+        Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "문의글이 존재하지 않습니다."));
 
         if (!question.getMember().getId().equals(member.getId())) {

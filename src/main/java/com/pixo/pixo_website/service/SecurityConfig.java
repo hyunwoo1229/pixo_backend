@@ -41,7 +41,11 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/question/make", "/api/reservation").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/question").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/question/my").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/question/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/question/**").authenticated()
+                        .requestMatchers("/api/admin/**", "/api/reservation/**").authenticated()
                         .anyRequest().permitAll()
                 )
 

@@ -43,21 +43,21 @@ public class QuestionController {
     }
 
     //문의 수정
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateQuestion(@PathVariable Long id,
+    @PutMapping("/{questionId}")
+    public ResponseEntity<?> updateQuestion(@PathVariable Long questionId,
                                             @RequestBody QuestionRequestDto dto,
                                             @AuthenticationPrincipal CumstomUserDetails userDetails) {
         Member member = userDetails.getMember();
-        questionService.updateQuestion(id, dto, member);
+        questionService.updateQuestion(questionId, dto, member);
         return ResponseEntity.ok(new SuccessResponse("문의가 수정되었습니다."));
     }
 
     //문의 삭제
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteQuestion(@PathVariable Long id,
+    @DeleteMapping("/{questionId}")
+    public ResponseEntity<?> deleteQuestion(@PathVariable Long questionId,
                                             @AuthenticationPrincipal CumstomUserDetails userDetails) {
         Member member = userDetails.getMember();
-        questionService.deleteQuestion(id, member);
+        questionService.deleteQuestion(questionId, member);
         return ResponseEntity.ok(new SuccessResponse("문의가 삭제되었습니다."));
     }
 

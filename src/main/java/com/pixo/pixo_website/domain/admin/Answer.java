@@ -1,5 +1,6 @@
-package com.pixo.pixo_website.domain;
+package com.pixo.pixo_website.domain.admin;
 
+import com.pixo.pixo_website.domain.Question;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,21 +11,16 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 
-public class Question
-{
+public class Answer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String title;
     private String content;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
 
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt;
-    private boolean answered = false;
 
-
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "question_id")
+    private Question question;
 }
