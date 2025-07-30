@@ -1,7 +1,7 @@
 package com.pixo.pixo_website.controller;
 
 import com.pixo.pixo_website.dto.ChangePasswordRequest;
-import com.pixo.pixo_website.dto.MemberDto;
+import com.pixo.pixo_website.dto.MemberRequestDto;
 import com.pixo.pixo_website.dto.SuccessResponse;
 import com.pixo.pixo_website.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -19,13 +19,13 @@ public class MemberController {
 
     //회원가입
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody MemberDto dto) {
+    public ResponseEntity<?> register(@RequestBody MemberRequestDto dto) {
         return memberService.register(dto);
     }
 
     //소셜 로그인 후 추가 정보 저장
     @PostMapping("/update-extra")
-    public ResponseEntity<?> updateExtra(@RequestBody MemberDto dto, Authentication authentication) {
+    public ResponseEntity<?> updateExtra(@RequestBody MemberRequestDto dto, Authentication authentication) {
 
         memberService.updateExtra(dto, authentication);
         return ResponseEntity.ok(new SuccessResponse("추가 정보 업데이트 완료"));

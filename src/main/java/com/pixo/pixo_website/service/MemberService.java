@@ -3,7 +3,7 @@ package com.pixo.pixo_website.service;
 import com.pixo.pixo_website.domain.Member;
 import com.pixo.pixo_website.dto.ChangePasswordRequest;
 import com.pixo.pixo_website.dto.ErrorResponse;
-import com.pixo.pixo_website.dto.MemberDto;
+import com.pixo.pixo_website.dto.MemberRequestDto;
 import com.pixo.pixo_website.dto.SuccessResponse;
 import com.pixo.pixo_website.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     //회원가입
-    public ResponseEntity<?> register(MemberDto dto) {
+    public ResponseEntity<?> register(MemberRequestDto dto) {
         if (memberRepository.findByLoginId(dto.getLoginId()).isPresent()) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
@@ -43,7 +43,7 @@ public class MemberService {
     }
 
     //소셜 로그인 후 추가 정보 저장
-    public void updateExtra(MemberDto dto, Authentication authentication) {
+    public void updateExtra(MemberRequestDto dto, Authentication authentication) {
         if (authentication == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "토큰 없음");
         }

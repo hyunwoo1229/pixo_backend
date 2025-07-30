@@ -2,7 +2,7 @@ package com.pixo.pixo_website.service;
 
 import com.pixo.pixo_website.domain.Member;
 import com.pixo.pixo_website.dto.ErrorResponse;
-import com.pixo.pixo_website.dto.MemberDto;
+import com.pixo.pixo_website.dto.MemberRequestDto;
 import com.pixo.pixo_website.dto.SuccessResponse;
 import com.pixo.pixo_website.dto.TokenResponseDto;
 import com.pixo.pixo_website.repository.MemberRepository;
@@ -27,7 +27,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public ResponseEntity<?> login(MemberDto dto) {
+    public ResponseEntity<?> login(MemberRequestDto dto) {
         Optional<Member> optionalMember = memberRepository.findByLoginId(dto.getLoginId());
 
         if (optionalMember.isEmpty()) {

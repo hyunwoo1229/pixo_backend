@@ -1,6 +1,5 @@
 package com.pixo.pixo_website.controller.admin;
 
-import com.pixo.pixo_website.domain.Question;
 import com.pixo.pixo_website.dto.QuestionRequestDto;
 import com.pixo.pixo_website.dto.SuccessResponse;
 import com.pixo.pixo_website.dto.admin.AnswerRequestDto;
@@ -9,8 +8,6 @@ import com.pixo.pixo_website.service.admin.AdminQuestionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/question")

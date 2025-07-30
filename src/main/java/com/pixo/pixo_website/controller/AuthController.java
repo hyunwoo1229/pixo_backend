@@ -1,6 +1,6 @@
 package com.pixo.pixo_website.controller;
 
-import com.pixo.pixo_website.dto.MemberDto;
+import com.pixo.pixo_website.dto.MemberRequestDto;
 import com.pixo.pixo_website.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class AuthController {
 
     //로그인
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody MemberDto dto) {
+    public ResponseEntity<?> login(@RequestBody MemberRequestDto dto) {
         return authService.login(dto);
     }
 
