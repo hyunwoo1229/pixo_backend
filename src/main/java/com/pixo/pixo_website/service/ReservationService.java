@@ -3,6 +3,7 @@ package com.pixo.pixo_website.service;
 import com.pixo.pixo_website.domain.Member;
 import com.pixo.pixo_website.domain.Reservation;
 import com.pixo.pixo_website.dto.ReservationRequestDto;
+import com.pixo.pixo_website.dto.ReservationResponseDto;
 import com.pixo.pixo_website.repository.MemberRepository;
 import com.pixo.pixo_website.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +52,9 @@ public class ReservationService {
         return saved;
     }
 
-    public List<Reservation> getReservationsByMember(Long memberId) {
-        return reservationRepository.findByMemberId(memberId);
+    public List<ReservationResponseDto> getReservationsByMember(Long memberId) {
+        return reservationRepository.findByMemberId(memberId).stream()
+                .map(ReservationResponseDto::new)
+                .toList();
     }
 }
