@@ -26,7 +26,6 @@ public class MemberController {
     //소셜 로그인 후 추가 정보 저장
     @PostMapping("/update-extra")
     public ResponseEntity<?> updateExtra(@RequestBody MemberRequestDto dto, Authentication authentication) {
-
         memberService.updateExtra(dto, authentication);
         return ResponseEntity.ok(new SuccessResponse("추가 정보 업데이트 완료"));
     }
@@ -37,4 +36,11 @@ public class MemberController {
         memberService.changePassword(req, authentication);
         return ResponseEntity.ok().build();
     }
+
+    //아이디 중복 확인
+    @GetMapping("/check-id")
+    public ResponseEntity<?> checkDuplicatedId(@RequestParam String loginId) {
+        return ResponseEntity.ok(memberService.checkDuplicatedId(loginId));
+    }
+
 }

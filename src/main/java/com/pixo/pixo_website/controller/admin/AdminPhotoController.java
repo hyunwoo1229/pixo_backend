@@ -2,7 +2,8 @@ package com.pixo.pixo_website.controller.admin;
 
 import com.pixo.pixo_website.domain.admin.Photo;
 import com.pixo.pixo_website.dto.SuccessResponse;
-import com.pixo.pixo_website.dto.admin.PhotoUploadRequestDto;
+import com.pixo.pixo_website.dto.admin.PhotoRequestDto;
+import com.pixo.pixo_website.dto.admin.PhotoResponseDto;
 import com.pixo.pixo_website.service.admin.AdminPhotoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class AdminPhotoController {
     @PostMapping("/upload")
     public ResponseEntity<?> uploadPhoto(@RequestPart("category") String category,
                                          @RequestPart("imageFile") MultipartFile imageFile) {
-        PhotoUploadRequestDto dto = new PhotoUploadRequestDto(category, imageFile);
+        PhotoRequestDto dto = new PhotoRequestDto(category, imageFile);
         adminPhotoService.uploadPhoto(dto);
         return ResponseEntity.ok(new SuccessResponse("사진이 업로드 되었습니다."));
     }
@@ -36,7 +37,7 @@ public class AdminPhotoController {
 
     //전체 사진 조회
     @GetMapping("/all")
-    public ResponseEntity<List<Photo>> getAllPhotos() {
+    public ResponseEntity<List<PhotoResponseDto>> getAllPhotos() {
         return ResponseEntity.ok(adminPhotoService.getAllPhotos());
     }
 

@@ -3,6 +3,7 @@ package com.pixo.pixo_website.controller;
 import com.pixo.pixo_website.domain.Member;
 import com.pixo.pixo_website.domain.Question;
 import com.pixo.pixo_website.dto.QuestionRequestDto;
+import com.pixo.pixo_website.dto.QuestionResponseDto;
 import com.pixo.pixo_website.dto.SuccessResponse;
 import com.pixo.pixo_website.security.CumstomUserDetails;
 import com.pixo.pixo_website.service.QuestionService;
@@ -31,14 +32,14 @@ public class QuestionController {
 
     //내 문의 목록 조회
     @PostMapping("/my")
-    public ResponseEntity<List<Question>> getMyQuestions(@AuthenticationPrincipal CumstomUserDetails userDetails) {
+    public ResponseEntity<List<QuestionResponseDto>> getMyQuestions(@AuthenticationPrincipal CumstomUserDetails userDetails) {
         Member member = userDetails.getMember();
         return ResponseEntity.ok(questionService.getMyQuestions(member));
     }
 
     //전체 문의 목록 조회
     @GetMapping
-    public ResponseEntity<List<Question>> getAllQuestions() {
+    public ResponseEntity<List<QuestionResponseDto>> getAllQuestions() {
         return ResponseEntity.ok(questionService.getAllQuestions());
     }
 

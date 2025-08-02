@@ -1,7 +1,8 @@
 package com.pixo.pixo_website.service.admin;
 
 import com.pixo.pixo_website.domain.admin.Photo;
-import com.pixo.pixo_website.dto.admin.PhotoUploadRequestDto;
+import com.pixo.pixo_website.dto.admin.PhotoRequestDto;
+import com.pixo.pixo_website.dto.admin.PhotoResponseDto;
 import com.pixo.pixo_website.repository.admin.PhotoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +28,7 @@ public class AdminPhotoService {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    public void uploadPhoto(PhotoUploadRequestDto dto) {
+    public void uploadPhoto(PhotoRequestDto dto) {
         MultipartFile file = dto.getImageFile();
         String originalFilename = file.getOriginalFilename();
         String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
@@ -66,8 +67,10 @@ public class AdminPhotoService {
         photoRepository.delete(photo);
     }
 
-    public List<Photo> getAllPhotos() {
-        return photoRepository.findAll();
+    public List<PhotoResponseDto> getAllPhotos() {
+        return photoRepository.findAll().stream()
+                .map(PhotoResponseDto::new)
+                .toList();
     }
 
 }

@@ -3,7 +3,6 @@ package com.pixo.pixo_website.controller.admin;
 import com.pixo.pixo_website.dto.QuestionRequestDto;
 import com.pixo.pixo_website.dto.SuccessResponse;
 import com.pixo.pixo_website.dto.admin.AnswerRequestDto;
-import com.pixo.pixo_website.service.QuestionService;
 import com.pixo.pixo_website.service.admin.AdminQuestionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 public class AdminQuestionController {
 
     private final AdminQuestionService adminQuestionService;
-    private final QuestionService questionService;
 
     // 문의글 수정
     @PutMapping("/{questionId}")
@@ -54,7 +52,5 @@ public class AdminQuestionController {
         adminQuestionService.deleteAnswer(answerId);
         return ResponseEntity.ok(new SuccessResponse("답변이 삭제되었습니다."));
     }
-
-
 
 }

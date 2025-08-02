@@ -1,7 +1,5 @@
 package com.pixo.pixo_website.controller.admin;
 
-
-import com.pixo.pixo_website.dto.MemberRequestDto;
 import com.pixo.pixo_website.dto.admin.AdminMemberRequestDto;
 import com.pixo.pixo_website.service.admin.AdminMemberService;
 import lombok.RequiredArgsConstructor;

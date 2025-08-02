@@ -3,6 +3,7 @@ package com.pixo.pixo_website.service;
 import com.pixo.pixo_website.domain.Member;
 import com.pixo.pixo_website.domain.Question;
 import com.pixo.pixo_website.dto.QuestionRequestDto;
+import com.pixo.pixo_website.dto.QuestionResponseDto;
 import com.pixo.pixo_website.repository.MemberRepository;
 import com.pixo.pixo_website.repository.QuestionRepository;
 import jakarta.transaction.Transactional;
@@ -29,12 +30,16 @@ public class QuestionService {
         questionRepository.save(question);
     }
 
-    public List<Question> getAllQuestions() {
-        return questionRepository.findAll();
+    public List<QuestionResponseDto> getAllQuestions() {
+        return questionRepository.findAll().stream()
+                .map(QuestionResponseDto::new)
+                .toList();
     }
 
-    public List<Question> getMyQuestions(Member member) {
-        return questionRepository.findByMember(member);
+    public List<QuestionResponseDto> getMyQuestions(Member member) {
+         return questionRepository.findByMember(member).stream()
+                .map(QuestionResponseDto::new)
+                .toList();
     }
 
     @Transactional

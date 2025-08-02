@@ -24,7 +24,7 @@ public class Question
 
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt;
-    private boolean answered = false;
+    private Boolean answered = false;
 
 
 }

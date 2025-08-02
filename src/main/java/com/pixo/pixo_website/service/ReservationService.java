@@ -16,6 +16,7 @@ import java.util.List;
 public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final MemberRepository memberRepository;
+    private final MailService mailService;
 
     public Reservation createReservation(Long memberId, ReservationRequestDto dto) {
         Member member = memberRepository.findById(memberId)
@@ -29,7 +30,25 @@ public class ReservationService {
         reservation.setEndTime(dto.getEndTime());
         reservation.setNotes(dto.getNotes());
 
-        return reservationRepository.save(reservation);
+        Reservation saved = reservationRepository.save(reservation);
+
+        // 이메일 내용 구성
+        String subject = "[PIXO] 새 예약 알림";
+        String body = String.format(
+                "회원 이름: %s\n전화번호: %s\n\n촬영 종류: %s\n날짜: %s\n시간: %04d ~ %04d\n요청사항: %s",
+                member.getName(),
+                member.getPhoneNumber(),
+                reservation.getShootType(),
+                reservation.getDate(),
+                reservation.getStartTime(),
+                reservation.getEndTime(),
+                reservation.getNotes()
+        );
+
+        // 이메일 전송
+        mailService.sendReservationNotification("hynoo20011229@gmail.com", subject, body);
+
+        return saved;
     }
 
     public List<Reservation> getReservationsByMember(Long memberId) {
