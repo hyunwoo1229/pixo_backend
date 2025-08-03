@@ -20,7 +20,7 @@ import java.util.List;
 
 public class QuestionService {
     private final QuestionRepository questionRepository;
-    private final MemberRepository memberRepository;
+    private final MailService mailService;
 
     public void createQuestion(QuestionRequestDto dto, Member member) {
         Question question = new Question();
@@ -28,7 +28,19 @@ public class QuestionService {
         question.setContent(dto.getContent());
         question.setMember(member);
         questionRepository.save(question);
+
+        // 이메일 전송
+        String subject = "[PIXO] 새로운 문의가 등록되었습니다";
+        String body = String.format(
+                "회원 이름: %s\n제목: %s\n내용:\n%s",
+                member.getName(),
+                dto.getTitle(),
+                dto.getContent()
+        );
+
+        mailService.sendReservationNotification("hynoo20011229@gmail.com", subject, body);
     }
+
 
     public List<QuestionResponseDto> getAllQuestions() {
         return questionRepository.findAll().stream()
