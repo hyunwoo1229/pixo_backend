@@ -1,6 +1,7 @@
 package com.pixo.pixo_website.service.admin;
 
 import com.pixo.pixo_website.domain.admin.Photo;
+import com.pixo.pixo_website.domain.admin.PhotoCategory;
 import com.pixo.pixo_website.dto.admin.PhotoRequestDto;
 import com.pixo.pixo_website.dto.admin.PhotoResponseDto;
 import com.pixo.pixo_website.repository.admin.PhotoRepository;
@@ -67,10 +68,6 @@ public class AdminPhotoService {
         photoRepository.delete(photo);
     }
 
-    public List<PhotoResponseDto> getAllPhotos() {
-        return photoRepository.findAll().stream()
-                .map(PhotoResponseDto::new)
-                .toList();
-    }
+
 
 }

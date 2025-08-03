@@ -35,10 +35,6 @@ public class AdminPhotoController {
         return ResponseEntity.ok(new SuccessResponse("사진이 삭제 되었습니다."));
     }
 
-    //전체 사진 조회
-    @GetMapping("/all")
-    public ResponseEntity<List<PhotoResponseDto>> getAllPhotos() {
-        return ResponseEntity.ok(adminPhotoService.getAllPhotos());
-    }
+
 
 }
