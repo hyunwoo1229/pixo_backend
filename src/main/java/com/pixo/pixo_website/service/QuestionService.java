@@ -4,7 +4,6 @@ import com.pixo.pixo_website.domain.Member;
 import com.pixo.pixo_website.domain.Question;
 import com.pixo.pixo_website.dto.QuestionRequestDto;
 import com.pixo.pixo_website.dto.QuestionResponseDto;
-import com.pixo.pixo_website.repository.MemberRepository;
 import com.pixo.pixo_website.repository.QuestionRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

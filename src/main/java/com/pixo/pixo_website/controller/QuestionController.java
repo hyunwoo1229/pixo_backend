@@ -1,7 +1,6 @@
 package com.pixo.pixo_website.controller;
 
 import com.pixo.pixo_website.domain.Member;
-import com.pixo.pixo_website.domain.Question;
 import com.pixo.pixo_website.dto.QuestionRequestDto;
 import com.pixo.pixo_website.dto.QuestionResponseDto;
 import com.pixo.pixo_website.dto.SuccessResponse;

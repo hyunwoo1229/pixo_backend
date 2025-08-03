@@ -1,9 +1,7 @@
 package com.pixo.pixo_website.service.admin;
 
 import com.pixo.pixo_website.domain.admin.Photo;
-import com.pixo.pixo_website.domain.admin.PhotoCategory;
 import com.pixo.pixo_website.dto.admin.PhotoRequestDto;
-import com.pixo.pixo_website.dto.admin.PhotoResponseDto;
 import com.pixo.pixo_website.repository.admin.PhotoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +15,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.UUID;
 
 @Service

@@ -1,6 +1,5 @@
 package com.pixo.pixo_website.service.admin;
 
-import com.pixo.pixo_website.dto.MemberRequestDto;
 import com.pixo.pixo_website.dto.admin.AdminMemberRequestDto;
 import com.pixo.pixo_website.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
