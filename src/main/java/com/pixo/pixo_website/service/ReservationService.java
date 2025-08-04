@@ -28,8 +28,7 @@ public class ReservationService {
         reservation.setMember(member);
         reservation.setShootType(dto.getShootType());
         reservation.setDate(dto.getDate());
-        reservation.setStartTime(dto.getStartTime());
-        reservation.setEndTime(dto.getEndTime());
+        reservation.setTime(dto.getTime());
         reservation.setNotes(dto.getNotes());
         reservation.setReservationCode(generateReservationCode());
 
@@ -38,14 +37,13 @@ public class ReservationService {
         // 이메일 내용 구성
         String subject = "[PIXO] 새 예약 알림";
         String body = String.format(
-                "예약 코드: %s \n회원 이름: %s\n전화번호: %s\n\n촬영 종류: %s\n날짜: %s\n시간: %04d ~ %04d\n요청사항: %s",
+                "예약 코드: %s \n회원 이름: %s\n전화번호: %s\n\n촬영 종류: %s\n날짜: %s\n시간: %s\n요청사항: %s",
                 reservation.getReservationCode(),
                 member.getName(),
                 member.getPhoneNumber(),
                 reservation.getShootType(),
                 reservation.getDate(),
-                reservation.getStartTime(),
-                reservation.getEndTime(),
+                reservation.getTime(),
                 reservation.getNotes()
         );
 

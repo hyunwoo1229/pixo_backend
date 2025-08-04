@@ -11,8 +11,7 @@ public class ReservationResponseDto {
     private Long id;
     private String shootType;
     private LocalDate date;
-    private Integer startTime;
-    private Integer endTime;
+    private String time;
     private String notes;
     private String memberName;
 
@@ -20,8 +19,7 @@ public class ReservationResponseDto {
         this.id = reservation.getId();
         this.shootType = reservation.getShootType();
         this.date = reservation.getDate();
-        this.startTime = reservation.getStartTime();
-        this.endTime = reservation.getEndTime();
+        this.time = reservation.getTime();
         this.notes = reservation.getNotes();
         this.memberName = reservation.getMember().getName(); // 필요 시 name만 추출
     }

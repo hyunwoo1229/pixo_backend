@@ -11,7 +11,6 @@ import java.time.LocalDate;
 public class ReservationRequestDto {
     private String shootType;
     private LocalDate date;
-    private Integer startTime;
-    private Integer endTime;
+    private String time;
     private String notes;
 }

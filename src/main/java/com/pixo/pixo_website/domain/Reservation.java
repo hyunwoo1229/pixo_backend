@@ -20,8 +20,7 @@ public class Reservation {
 
     private String shootType;
     private LocalDate date;
-    private Integer startTime;
-    private Integer endTime;
+    private String time;
     private String notes;
     private String reservationCode;
 }
