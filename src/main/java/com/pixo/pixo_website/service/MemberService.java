@@ -20,13 +20,20 @@ import org.springframework.web.server.ResponseStatusException;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
-
+    private final SmsService smsService;
     //회원가입
     public ResponseEntity<?> register(MemberRequestDto dto) {
         if (memberRepository.findByLoginId(dto.getLoginId()).isPresent()) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
                     .body(new ErrorResponse("이미 존재하는 아이디입니다"));
+        }
+
+        boolean verified = smsService.verifyCode(dto.getPhoneNumber(), dto.getCode());
+        if (!verified) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("인증번호가 일치하지 않습니다."));
         }
 
         Member member = new Member();
@@ -53,6 +60,11 @@ public class MemberService {
         Member member = memberRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new IllegalArgumentException("로그인한 사용자를 찾을 수 없습니다."));
 
+        boolean verified = smsService.verifyCode(dto.getPhoneNumber(), dto.getCode());
+        if (!verified) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "인증번호가 일치하지 않거나 만료되었습니다.");
+        }
+
         member.setName(dto.getName());
         member.setPhoneNumber(dto.getPhoneNumber());
 
@@ -77,5 +89,9 @@ public class MemberService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 존재하는 아이디입니다");
         }
         return new SuccessResponse("사용 가능한 아이디입니다.");
+    }
+
+    public void sendVerificationCode(String phoneNumber) {
+        smsService.sendVerificationCode(phoneNumber);
     }
 }

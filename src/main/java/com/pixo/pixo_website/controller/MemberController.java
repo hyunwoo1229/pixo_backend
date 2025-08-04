@@ -30,6 +30,13 @@ public class MemberController {
         return ResponseEntity.ok(new SuccessResponse("추가 정보 업데이트 완료"));
     }
 
+    //인증 코드 전송
+    @PostMapping("/send-code")
+    public ResponseEntity<?> sendCode(@RequestParam String phoneNumber) {
+        memberService.sendVerificationCode(phoneNumber);
+        return ResponseEntity.ok(new SuccessResponse("인증번호가 전송되었습니다."));
+    }
+
     //비밀번호 변경
     @PutMapping("/profile/password")
     public ResponseEntity<Void> updatePassword(@RequestBody ChangePasswordRequest req, Authentication authentication) {

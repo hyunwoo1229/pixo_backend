@@ -12,5 +12,6 @@ public class MemberRequestDto {
     private String name;
     private String phoneNumber;
     private String provider;
+    private String code;
 
 }
