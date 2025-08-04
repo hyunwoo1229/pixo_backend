@@ -23,4 +23,5 @@ public class Reservation {
     private Integer startTime;
     private Integer endTime;
     private String notes;
+    private String reservationCode;
 }

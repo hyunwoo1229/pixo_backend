@@ -9,6 +9,7 @@ import com.pixo.pixo_website.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -30,13 +31,15 @@ public class ReservationService {
         reservation.setStartTime(dto.getStartTime());
         reservation.setEndTime(dto.getEndTime());
         reservation.setNotes(dto.getNotes());
+        reservation.setReservationCode(generateReservationCode());
 
         Reservation saved = reservationRepository.save(reservation);
 
         // 이메일 내용 구성
         String subject = "[PIXO] 새 예약 알림";
         String body = String.format(
-                "회원 이름: %s\n전화번호: %s\n\n촬영 종류: %s\n날짜: %s\n시간: %04d ~ %04d\n요청사항: %s",
+                "예약 코드: %s \n회원 이름: %s\n전화번호: %s\n\n촬영 종류: %s\n날짜: %s\n시간: %04d ~ %04d\n요청사항: %s",
+                reservation.getReservationCode(),
                 member.getName(),
                 member.getPhoneNumber(),
                 reservation.getShootType(),
@@ -56,5 +59,12 @@ public class ReservationService {
         return reservationRepository.findByMemberId(memberId).stream()
                 .map(ReservationResponseDto::new)
                 .toList();
+    }
+
+    private String generateReservationCode() {
+        // 예: 20250804AB12CD
+        String datePart = LocalDate.now().toString().replace("-", ""); // YYYYMMDD
+        String randomPart = java.util.UUID.randomUUID().toString().replaceAll("-", "").substring(0, 6).toUpperCase();
+        return datePart + randomPart;
     }
 }
