@@ -6,6 +6,7 @@ import com.pixo.pixo_website.dto.ErrorResponse;
 import com.pixo.pixo_website.dto.MemberRequestDto;
 import com.pixo.pixo_website.dto.SuccessResponse;
 import com.pixo.pixo_website.repository.MemberRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -93,5 +94,11 @@ public class MemberService {
 
     public void sendVerificationCode(String phoneNumber) {
         smsService.sendVerificationCode(phoneNumber);
+    }
+
+    //회원 탈퇴
+    @Transactional
+    public void deleteMember(Member member) {
+        memberRepository.delete(member);
     }
 }
