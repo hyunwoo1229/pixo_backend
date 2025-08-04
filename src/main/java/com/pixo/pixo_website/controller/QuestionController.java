@@ -61,4 +61,16 @@ public class QuestionController {
         return ResponseEntity.ok(new SuccessResponse("문의가 삭제되었습니다."));
     }
 
+    // 제목으로 검색
+    @GetMapping("/search/title")
+    public ResponseEntity<List<QuestionResponseDto>> searchByTitle(@RequestParam String keyword) {
+        return ResponseEntity.ok(questionService.searchByTitle(keyword));
+    }
+
+    // 내용으로 검색
+    @GetMapping("/search/content")
+    public ResponseEntity<List<QuestionResponseDto>> searchByContent(@RequestParam String keyword) {
+        return ResponseEntity.ok(questionService.searchByContent(keyword));
+    }
+
 }

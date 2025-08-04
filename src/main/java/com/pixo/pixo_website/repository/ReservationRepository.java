@@ -9,10 +9,6 @@ import java.util.List;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     List<Reservation> findByMemberId(Long memberId);
-    // 이름으로 검색
-    @Query("SELECT r FROM Reservation r WHERE LOWER(r.member.name) LIKE LOWER(CONCAT('%', :name, '%'))")
-    List<Reservation> searchByMemberName(@Param("name") String name);
-
-    // 예약번호로 검색
+    List<Reservation> findByMemberNameContainingIgnoreCase(String name);
     List<Reservation> findByReservationCodeContainingIgnoreCase(String reservationCode);
 }

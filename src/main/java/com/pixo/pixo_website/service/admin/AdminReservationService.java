@@ -24,7 +24,7 @@ public class AdminReservationService {
 
     // 이름으로 검색
     public List<ReservationResponseDto> searchByMemberName(String name) {
-        return reservationRepository.searchByMemberName(name).stream()
+        return reservationRepository.findByMemberNameContainingIgnoreCase(name).stream()
                 .map(ReservationResponseDto::new)
                 .collect(Collectors.toList());
     }

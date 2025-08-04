@@ -78,4 +78,17 @@ public class QuestionService {
 
         questionRepository.delete(question);
     }
+
+    public List<QuestionResponseDto> searchByTitle(String keyword) {
+        return questionRepository.findByTitleContainingIgnoreCase(keyword).stream()
+                .map(QuestionResponseDto::new)
+                .toList();
+    }
+
+    public List<QuestionResponseDto> searchByContent(String keyword) {
+        return questionRepository.findByContentContainingIgnoreCase(keyword).stream()
+                .map(QuestionResponseDto::new)
+                .toList();
+    }
+
 }
