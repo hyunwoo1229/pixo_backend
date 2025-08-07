@@ -4,6 +4,7 @@ import com.pixo.pixo_website.domain.Member;
 import com.pixo.pixo_website.dto.ChangePasswordRequest;
 import com.pixo.pixo_website.dto.MemberRequestDto;
 import com.pixo.pixo_website.dto.SuccessResponse;
+import com.pixo.pixo_website.repository.MemberRepository;
 import com.pixo.pixo_website.security.CumstomUserDetails;
 import com.pixo.pixo_website.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
 
     private final MemberService memberService;
+    private final MemberRepository memberRepository;
 
     //회원가입
     @PostMapping("/register")
@@ -60,5 +62,4 @@ public class MemberController {
         memberService.deleteMember(member);
         return ResponseEntity.ok(new SuccessResponse("회원 탈퇴가 완료되었습니다."));
     }
-
 }

@@ -86,6 +86,7 @@ public class MemberService {
 
     //아이디 중복 확인
     public SuccessResponse checkDuplicatedId(String loginId) {
+        System.out.println("Received check-id request with loginId = " + loginId);
         if(memberRepository.findByLoginId(loginId).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 존재하는 아이디입니다");
         }

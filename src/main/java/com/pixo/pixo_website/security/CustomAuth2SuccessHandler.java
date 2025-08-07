@@ -50,7 +50,7 @@ public class CustomAuth2SuccessHandler implements AuthenticationSuccessHandler {
             Member newMember = new Member();
             newMember.setLoginId(loginId);
             newMember.setPassword(null);
-            newMember.setName(null);
+            newMember.setName("betaName"); //나중에 수정해야됨
             newMember.setPhoneNumber(null);
             newMember.setProvider(provider);
             return memberRepository.save(newMember);
