@@ -15,6 +15,7 @@ public class Photo {
     private String imageUrl;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "category", nullable = false, length = 50)
     private PhotoCategory category;
 
     private String originalFileName;

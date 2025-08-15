@@ -4,6 +4,7 @@ import com.pixo.pixo_website.domain.admin.Photo;
 import com.pixo.pixo_website.dto.admin.PhotoRequestDto;
 import com.pixo.pixo_website.repository.admin.PhotoRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -15,37 +16,54 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-
+@Slf4j
 public class AdminPhotoService {
     private final PhotoRepository photoRepository;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    public void uploadPhoto(PhotoRequestDto dto) {
+    public Photo uploadPhoto(PhotoRequestDto dto) {
         MultipartFile file = dto.getImageFile();
-        String originalFilename = file.getOriginalFilename();
-        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        String savedName = UUID.randomUUID().toString() + extension;
+        if (file == null || file.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "파일이 없습니다.");
+        }
 
-        File targetFile = new File(uploadDir + savedName);
+        String original = Optional.ofNullable(file.getOriginalFilename()).orElse("upload");
+        String ext = original.contains(".") ? original.substring(original.lastIndexOf(".")) : "";
+        String savedName = UUID.randomUUID() + ext;
+
         try {
-            file.transferTo(targetFile);
+            // ✅ 경로 안전하게 생성 + 디렉터리 보장
+            Path base = Paths.get(uploadDir).toAbsolutePath().normalize();
+            Files.createDirectories(base);
+            Path target = base.resolve(savedName);
+
+            file.transferTo(target.toFile());
+            log.info("Saved file to {}", target);
         } catch (IOException e) {
-            throw new RuntimeException("파일 저장 중 오류 발생", e);
+            log.error("파일 저장 중 오류", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 저장 중 오류", e);
         }
 
         Photo photo = new Photo();
+        // 엔티티가 enum이면 이렇게, 문자열이면 그대로 저장
+        // photo.setCategory(PhotoCategory.valueOf(dto.getCategory()));
         photo.setCategory(dto.getCategory());
+
         photo.setImageUrl("/uploads/" + savedName);
-        photo.setOriginalFileName(originalFilename);
+        photo.setOriginalFileName(original);
         photo.setSavedFileName(savedName);
-        photoRepository.save(photo);
+
+        return photoRepository.save(photo);
     }
+
+
 
     public void deletePhoto(Long photoId) {
         Photo photo = photoRepository.findById(photoId)

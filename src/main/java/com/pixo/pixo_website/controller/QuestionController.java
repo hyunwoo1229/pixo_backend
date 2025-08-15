@@ -30,7 +30,7 @@ public class QuestionController {
     }
 
     //내 문의 목록 조회
-    @PostMapping("/my")
+    @GetMapping("/my")
     public ResponseEntity<List<QuestionResponseDto>> getMyQuestions(@AuthenticationPrincipal CumstomUserDetails userDetails) {
         Member member = userDetails.getMember();
         return ResponseEntity.ok(questionService.getMyQuestions(member));

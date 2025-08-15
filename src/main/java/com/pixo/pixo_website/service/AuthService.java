@@ -56,6 +56,7 @@ public class AuthService {
         result.put("accessToken", accessToken);
         result.put("refreshToken", refreshToken);
         result.put("name", member.getName());
+        result.put("role", member.getRole().name());
 
         return ResponseEntity.ok(result);
     }

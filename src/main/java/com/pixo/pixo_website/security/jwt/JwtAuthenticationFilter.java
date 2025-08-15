@@ -1,56 +1,70 @@
 package com.pixo.pixo_website.security.jwt;
 
+import com.pixo.pixo_website.domain.Member;          // ← 프로젝트 패키지에 맞게 수정
+import com.pixo.pixo_website.repository.MemberRepository; // ← 패키지 경로 맞추기
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
-
-    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider) {
-        this.jwtTokenProvider = jwtTokenProvider;
-    }
+    private final MemberRepository memberRepository; // ✅ DB에서 role 로드
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
+
         String token = resolveToken(request);
 
-
-        if (token != null) { // 헤더에 토큰이 존재하는 경우
-            if (jwtTokenProvider.validateToken(token)) {
-                // 토큰이 유효하면 인증 정보 설정
-                String loginId = jwtTokenProvider.getLoginId(token);
-                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(loginId, null, List.of());
-                SecurityContextHolder.getContext().setAuthentication(auth);
-            } else {
-                // 토큰이 유효하지 않은 경우 (만료 등)
-                // 401 에러를 응답하고 필터 체인을 여기서 중단
+        if (token != null) {
+            if (!jwtTokenProvider.validateToken(token)) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid/Expired Token");
                 return;
             }
+
+            // 토큰에서 사용자 식별자 꺼냄
+            String loginId = jwtTokenProvider.getLoginId(token);
+
+            // ✅ DB에서 role 로드 → ROLE_ 프리픽스 붙여 GrantedAuthority 생성
+            List<GrantedAuthority> authorities = Collections.emptyList();
+            Member member = memberRepository.findByLoginId(loginId).orElse(null);
+            if (member != null && member.getRole() != null) {
+                String roleName = member.getRole().name();           // 예: ADMIN
+                authorities = List.of(new SimpleGrantedAuthority("ROLE_" + roleName)); // ROLE_ADMIN
+            }
+
+            // ✅ 권한을 포함한 Authentication을 컨텍스트에 주입
+            UsernamePasswordAuthenticationToken auth =
+                    new UsernamePasswordAuthenticationToken(loginId, null, authorities);
+            auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(auth);
         }
 
-        // 토큰이 아예 없는 경우는 그대로 필터 체인 계속 진행 (공개 API 접근 허용)
         filterChain.doFilter(request, response);
     }
 
     private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if(bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
+        String bearer = request.getHeader("Authorization");
+        return (bearer != null && bearer.startsWith("Bearer ")) ? bearer.substring(7) : null;
     }
 }
