@@ -1,4 +1,4 @@
-package com.pixo.pixo_website.service;
+package com.pixo.pixo_website.service; // 실제 프로젝트의 security 패키지 경로로 변경해주세요.
 
 import com.pixo.pixo_website.security.CustomAuth2SuccessHandler;
 import com.pixo.pixo_website.security.jwt.JwtAuthenticationFilter;
@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -27,19 +26,21 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-
 public class SecurityConfig {
+
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    // ▼▼▼▼▼ 이 줄을 추가하여 CustomAuth2SuccessHandler를 주입받습니다. ▼▼▼▼▼
+    private final CustomAuth2SuccessHandler customAuth2SuccessHandler;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, CustomAuth2SuccessHandler customAuth2SuccessHandler) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
-                .cors(Customizer.withDefaults())
+                // CORS 설정을 명시적으로 지정합니다.
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/question").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/question/my").authenticated()
@@ -49,11 +50,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
-
-                .sessionManagement(sesson -> sesson.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(
                         (request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
                 ))
+                // 주입받은 customAuth2SuccessHandler를 사용합니다.
                 .oauth2Login(oauth -> oauth
                         .successHandler(customAuth2SuccessHandler))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -68,10 +69,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173", "https://a9afe7274ff3.ngrok-free.app")); //ngrok 연결
+        configuration.setAllowedOrigins(List.of("http://localhost:5173", "https://34b5b884cb62.ngrok-free.app"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-requested-with"));
         configuration.setAllowCredentials(true);
+        // Authorization 헤더를 클라이언트에서 접근할 수 있도록 노출시킵니다.
+        configuration.setExposedHeaders(List.of("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -88,12 +91,12 @@ public class SecurityConfig {
     }
 
     @Value("${google.client.secret}")
-    String googleClinetSecret;
+    String googleClientSecret;
 
     private ClientRegistration googleClientRegistration() {
         return ClientRegistration.withRegistrationId("google")
                 .clientId("1067642253282-b0oi07bo4l4bjhdqtkrndmdr31ekj5cc.apps.googleusercontent.com")
-                .clientSecret(googleClinetSecret)
+                .clientSecret(googleClientSecret)
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .redirectUri("{baseUrl}/login/oauth2/code/google")
@@ -107,12 +110,12 @@ public class SecurityConfig {
     }
 
     @Value("${naver.client.secret}")
-    String naverClinetSecret;
+    String naverClientSecret;
 
     private ClientRegistration naverClientRegistration() {
         return ClientRegistration.withRegistrationId("naver")
                 .clientId("c_hS5mSslbgrjKqAyZEY")
-                .clientSecret(naverClinetSecret)
+                .clientSecret(naverClientSecret)
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .redirectUri("{baseUrl}/login/oauth2/code/naver")

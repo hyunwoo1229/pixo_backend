@@ -31,7 +31,7 @@ public class QuestionService {
         // 이메일 전송
         String subject = "[PIXO] 새로운 문의가 등록되었습니다";
         String body = String.format(
-                "회원 이름: %s\n제목: %s\n내용:\n%s",
+                "회원 이름: %s\n제목: %s\n내용:%s",
                 member.getName(),
                 dto.getTitle(),
                 dto.getContent()

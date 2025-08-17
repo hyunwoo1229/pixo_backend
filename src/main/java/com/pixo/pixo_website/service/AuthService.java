@@ -45,8 +45,8 @@ public class AuthService {
         }
 
         //토큰 생성
-        String accessToken = jwtTokenProvider.createAccessToken(member.getLoginId());
-        String refreshToken = jwtTokenProvider.createRefreshToken(member.getLoginId());
+        String accessToken = jwtTokenProvider.createAccessToken(member.getLoginId(), member.getId());
+        String refreshToken = jwtTokenProvider.createRefreshToken(member.getLoginId(), member.getId());
 
         // ✅ DB에 Refresh Token 저장
         member.updateRefreshToken(refreshToken);
@@ -89,8 +89,8 @@ public class AuthService {
         Member member = memberOptional.get();
 
         // 3. 새로운 토큰 생성 (Access Token + Refresh Token 둘 다)
-        String newAccessToken = jwtTokenProvider.createAccessToken(member.getLoginId());
-        String newRefreshToken = jwtTokenProvider.createRefreshToken(member.getLoginId());
+        String newAccessToken = jwtTokenProvider.createAccessToken(member.getLoginId(), member.getId());
+        String newRefreshToken = jwtTokenProvider.createRefreshToken(member.getLoginId(), member.getId());
 
         // 4. DB에 새로운 Refresh Token 업데이트 (Refresh Token Rotation)
         member.updateRefreshToken(newRefreshToken);

@@ -56,9 +56,9 @@ public class CustomAuth2SuccessHandler implements AuthenticationSuccessHandler {
             return memberRepository.save(newMember);
         });
 
-        // JWT 토큰 생성
-        String accessToken = jwtTokenProvider.createAccessToken(user.getLoginId());
-        String refreshToken = jwtTokenProvider.createRefreshToken(user.getLoginId());
+        // JWT 토큰 생성 시 user.getId()를 추가로 전달합니다.
+        String accessToken = jwtTokenProvider.createAccessToken(user.getLoginId(), user.getId());
+        String refreshToken = jwtTokenProvider.createRefreshToken(user.getLoginId(), user.getId());
 
         //DB에 RefreshToken 저장
         user.updateRefreshToken(refreshToken);
@@ -94,12 +94,12 @@ public class CustomAuth2SuccessHandler implements AuthenticationSuccessHandler {
         }
 
         if ("naver".equals(provider)) {
-            Map<String, Object> response = oAuth2User.getAttribute("response");
-            String email = (String) response.get("email"); // ✅ 제대로 꺼냄
+            Map<String, Object> responseAttr = oAuth2User.getAttribute("response");
+            String email = (String) responseAttr.get("email");
             if (email != null) {
                 return "naver_" + email;
             } else {
-                return "naver_" + response.get("id"); // ✅ fallback
+                return "naver_" + responseAttr.get("id");
             }
         }
 
@@ -111,12 +111,10 @@ public class CustomAuth2SuccessHandler implements AuthenticationSuccessHandler {
             } else {
                 Map<String, Object> profile = (Map<String, Object>) account.get("profile");
                 String nickname = (String) profile.get("nickname");
-                return "kakao_" + nickname; // ✅ fallback
+                return "kakao_" + nickname;
             }
         }
 
         return provider + "_unknown";
     }
-
 }
-

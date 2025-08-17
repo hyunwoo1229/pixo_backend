@@ -1,31 +1,28 @@
 package com.pixo.pixo_website.security.jwt;
 
-import com.pixo.pixo_website.domain.Member;          // ← 프로젝트 패키지에 맞게 수정
-import com.pixo.pixo_website.repository.MemberRepository; // ← 패키지 경로 맞추기
-
+import com.pixo.pixo_website.domain.Member;
+import com.pixo.pixo_website.repository.MemberRepository;
+import com.pixo.pixo_website.security.CumstomUserDetails; // CumstomUserDetails import
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails; // UserDetails import
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final MemberRepository memberRepository; // ✅ DB에서 role 로드
+    private final MemberRepository memberRepository;
 
     @Override
     protected void doFilterInternal(
@@ -36,26 +33,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = resolveToken(request);
 
-        if (token != null) {
-            if (!jwtTokenProvider.validateToken(token)) {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid/Expired Token");
-                return;
-            }
-
-            // 토큰에서 사용자 식별자 꺼냄
+        if (token != null && jwtTokenProvider.validateToken(token)) {
             String loginId = jwtTokenProvider.getLoginId(token);
 
-            // ✅ DB에서 role 로드 → ROLE_ 프리픽스 붙여 GrantedAuthority 생성
-            List<GrantedAuthority> authorities = Collections.emptyList();
-            Member member = memberRepository.findByLoginId(loginId).orElse(null);
-            if (member != null && member.getRole() != null) {
-                String roleName = member.getRole().name();           // 예: ADMIN
-                authorities = List.of(new SimpleGrantedAuthority("ROLE_" + roleName)); // ROLE_ADMIN
-            }
+            // loginId를 사용하여 DB에서 Member 정보를 완전히 불러옵니다.
+            Member member = memberRepository.findByLoginId(loginId)
+                    .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-            // ✅ 권한을 포함한 Authentication을 컨텍스트에 주입
+            // Member 정보를 바탕으로 UserDetails 객체를 생성합니다.
+            UserDetails userDetails = new CumstomUserDetails(member);
+
+            // Authentication 객체를 생성할 때, principal로 UserDetails 객체 자체를 전달합니다.
             UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(loginId, null, authorities);
+                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
             auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(auth);
         }

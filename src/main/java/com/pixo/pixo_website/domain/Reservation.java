@@ -21,6 +21,7 @@ public class Reservation {
     private String shootType;
     private LocalDate date;
     private String time;
+    private String location;
     private String notes;
     private String reservationCode;
 }
