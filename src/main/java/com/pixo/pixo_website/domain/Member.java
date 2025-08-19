@@ -19,6 +19,8 @@ public class Member {
     private String name;
     private String phoneNumber;
     private String provider;
+
+    @Column(length = 512)
     private String refreshToken;
 
     @Enumerated(EnumType.STRING)

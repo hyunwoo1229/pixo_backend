@@ -1,5 +1,6 @@
 package com.pixo.pixo_website.domain;
 
+import com.pixo.pixo_website.domain.admin.Answer;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,5 +27,7 @@ public class Question
     private LocalDateTime updatedAt;
     private Boolean answered = false;
 
+    @OneToOne(mappedBy = "question", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private Answer answer;
 
 }

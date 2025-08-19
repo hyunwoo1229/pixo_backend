@@ -1,4 +1,4 @@
-package com.pixo.pixo_website.service; // 실제 프로젝트의 security 패키지 경로로 변경해주세요.
+package com.pixo.pixo_website.service;
 
 import com.pixo.pixo_website.security.CustomAuth2SuccessHandler;
 import com.pixo.pixo_website.security.jwt.JwtAuthenticationFilter;
@@ -69,7 +69,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173", "https://34b5b884cb62.ngrok-free.app"));
+        configuration.setAllowedOrigins(List.of("http://localhost:5173", "https://2fc94f8f1ff5.ngrok-free.app"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-requested-with"));
         configuration.setAllowCredentials(true);
