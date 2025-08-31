@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -28,9 +29,14 @@ public class ReservationService {
             "PORTRAIT", "인물 촬영",
             "OBJECT", "사물 촬영"
     );
+    private final RateLimiterService rateLimiterService;
 
     @Transactional
     public Reservation createReservation(String loginId, ReservationRequestDto dto) {
+
+        String rateLimitKey = loginId + "_CREATE_RESERVATION";
+        rateLimiterService.check(rateLimitKey, Duration.ofMinutes(10));
+
         // memberId 대신 loginId로 회원을 찾습니다.
         Member member = memberRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 회원을 찾을 수 없습니다."));

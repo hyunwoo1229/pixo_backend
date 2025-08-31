@@ -7,6 +7,8 @@ import net.nurigo.sdk.NurigoApp;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -19,6 +21,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SmsService {
     private final Map<String, VerificationInfo> verificationCodes = new ConcurrentHashMap<>();
+
+    // 각 전화번호의 마지막 요청 시간을 저장하기 위한 Map
+    private final Map<String, LocalDateTime> requestTimestamps = new ConcurrentHashMap<>();
+    // 재요청 대기 시간 (1분)
+    private static final Duration COOLDOWN_DURATION = Duration.ofMinutes(1);
 
     @Value("${coolsms.api-key}")
     private String apiKey;
@@ -43,8 +50,18 @@ public class SmsService {
         }
     }
     public void sendVerificationCode(String phoneNumber) {
+        LocalDateTime lastRequestTime = requestTimestamps.get(phoneNumber);
+
+        // 마지막 요청 후 1분이 지나지 않았다면 에러 발생
+        if (lastRequestTime != null && Duration.between(lastRequestTime, LocalDateTime.now()).compareTo(COOLDOWN_DURATION) < 0) {
+            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "너무 잦은 요청입니다. 1분 후에 다시 시도해주세요.");
+        }
+
         String code = generateCode();
         verificationCodes.put(phoneNumber, new VerificationInfo(code, LocalDateTime.now()));
+
+        // 요청 성공 시, 현재 시간을 기록
+        requestTimestamps.put(phoneNumber, LocalDateTime.now());
 
         DefaultMessageService messageService = NurigoApp.INSTANCE.initialize(apiKey, apiSecret,  "https://api.solapi.com");
 

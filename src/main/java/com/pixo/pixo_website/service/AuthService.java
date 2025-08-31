@@ -50,7 +50,7 @@ public class AuthService {
         String accessToken = jwtTokenProvider.createAccessToken(member.getLoginId(), member.getId());
         String refreshToken = jwtTokenProvider.createRefreshToken(member.getLoginId(), member.getId());
 
-        // ✅ DB에 Refresh Token 저장
+        // DB에 Refresh Token 저장
         member.updateRefreshToken(refreshToken);
         memberRepository.save(member);
 
@@ -63,7 +63,7 @@ public class AuthService {
         return ResponseEntity.ok(result);
     }
 
-    @Transactional // ✅ 추가
+    @Transactional
     public ResponseEntity<?> logout(HttpServletRequest request) {
         String token = jwtTokenProvider.resolveToken(request);
         if (token != null) {

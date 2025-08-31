@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,8 +21,12 @@ import java.util.List;
 public class QuestionService {
     private final QuestionRepository questionRepository;
     private final MailService mailService;
+    private final RateLimiterService rateLimiterService;
 
     public void createQuestion(QuestionRequestDto dto, Member member) {
+        String rateLimitKey = member.getLoginId() + "_CREATE_QUESTION";
+        rateLimiterService.check(rateLimitKey, Duration.ofMinutes(5));
+
         Question question = new Question();
         question.setTitle(dto.getTitle());
         question.setContent(dto.getContent());
