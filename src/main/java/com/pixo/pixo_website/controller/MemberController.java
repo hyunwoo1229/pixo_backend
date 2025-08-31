@@ -81,4 +81,25 @@ public class MemberController {
         response.put("loginId", foundId);
         return ResponseEntity.ok(response);
     }
+
+    //비밀번호 찾기 인증 코드 전송
+    @PostMapping("find-pw/send-code")
+    public ResponseEntity<SuccessResponse> findPwSendCode(@RequestBody MemberRequestDto dto) {
+        memberService.sendCodeForPassword(dto.getLoginId(), dto.getName(), dto.getPhoneNumber());
+        return ResponseEntity.ok(new SuccessResponse("인증번호가 전송되었습니다."));
+    }
+
+    //비밀번호 찾기 인증 코드 확인
+    @PostMapping("find-pw/verify-code")
+    public ResponseEntity<SuccessResponse> findPwVerifyCode(@RequestBody MemberRequestDto dto) {
+        memberService.verifyCodeForPassword(dto.getLoginId(), dto.getName(), dto.getPhoneNumber(), dto.getCode());
+        return ResponseEntity.ok(new SuccessResponse("인증에 성공했습니다. 새 비밀번호를 입력해주세요."));
+    }
+
+    //비밀번호 찾기 새 비밀번호 설정
+    @PutMapping("find-pw/reset")
+    public ResponseEntity<SuccessResponse> resetPassword(@RequestBody MemberRequestDto dto) {
+        memberService.resetPassword(dto.getLoginId(), dto.getName(), dto.getPhoneNumber(), dto.getCode(), dto.getPassword());
+        return ResponseEntity.ok(new SuccessResponse("비밀번호가 성공적으로 변경되었습니다."));
+    }
 }

@@ -128,4 +128,35 @@ public class MemberService {
         }
         return loginId;
     }
+
+    //비밀번호 재설정용 인증번호 발송
+    public void sendCodeForPassword(String loginId, String name, String phoneNumber) {
+        memberRepository.findByLoginIdAndNameAndPhoneNumber(loginId, name, phoneNumber)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일치하는 회원 정보가 없습니다."));
+        smsService.sendVerificationCode(phoneNumber);
+    }
+
+    //비밀번호 재설정용 인증번호 확인
+    public void verifyCodeForPassword(String loginId, String name, String phoneNumber, String code) {
+        memberRepository.findByLoginIdAndNameAndPhoneNumber(loginId, name, phoneNumber)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일치하는 회원 정보가 없습니다."));
+        boolean verified = smsService.verifyCode(phoneNumber, code);
+        if (!verified) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "인증번호가 일치하지 않습니다");
+        }
+    }
+
+    //새 비밀번호 설정
+    @Transactional
+    public void resetPassword(String loginId, String name, String phoneNumber, String code, String newPassword) {
+        Member member = memberRepository.findByLoginIdAndNameAndPhoneNumber(loginId, name, phoneNumber)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일치하는 회원 정보가 없습니다."));
+
+        if(smsService.verifyCode(phoneNumber, code)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "인증 절차를 다시 진행해주세요.");
+        }
+        member.setPassword(passwordEncoder.encode(newPassword));
+        memberRepository.save(member);
+
+    }
 }
