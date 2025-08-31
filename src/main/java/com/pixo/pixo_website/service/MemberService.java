@@ -102,4 +102,30 @@ public class MemberService {
     public void deleteMember(Member member) {
         memberRepository.delete(member);
     }
+
+    //아이디 찾기 인증번호 발송
+    public void sendCodeForId(String name, String phoneNumber) {
+        memberRepository.findByNameAndPhoneNumber(name, phoneNumber)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일치하는 회원 정보가 없습니다."));
+
+        smsService.sendVerificationCode(phoneNumber);
+    }
+
+    //아이디 찾기
+    public String verifyCodeAndFindId(String name, String phoneNumber, String code) {
+        boolean verified = smsService.verifyCode(phoneNumber, code);
+        if (!verified) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "인증번호가 일치하지 않습니다");
+        }
+
+        Member member = memberRepository.findByNameAndPhoneNumber(name, phoneNumber)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일치하는 회원 정보가 없습니다."));
+
+        //보안을 위해 아이디 일부를 마스킹 처리해서 반환
+        String loginId = member.getLoginId();
+        if (loginId.length() > 4) {
+            return loginId.substring(0, loginId.length() - 2) + "****";
+        }
+        return loginId;
+    }
 }

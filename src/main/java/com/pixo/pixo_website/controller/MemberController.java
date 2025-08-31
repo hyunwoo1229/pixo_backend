@@ -13,6 +13,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/member")
 @RequiredArgsConstructor
@@ -61,5 +64,21 @@ public class MemberController {
         Member member = userDetails.getMember();
         memberService.deleteMember(member);
         return ResponseEntity.ok(new SuccessResponse("회원 탈퇴가 완료되었습니다."));
+    }
+
+    //아이디 찾기 인증 코드 전송
+    @PostMapping("find-id/send-code")
+    public ResponseEntity<SuccessResponse> findIdSendCode(@RequestBody MemberRequestDto dto) {
+        memberService.sendCodeForId(dto.getName(), dto.getPhoneNumber());
+        return ResponseEntity.ok(new SuccessResponse("인증번호가 전송되었습니다."));
+    }
+
+    //아이디 찾기 인증번호 확인 및 아이디 반환
+    @PostMapping("/find-id/verify")
+    public ResponseEntity<Map<String, String>> findIdVerify(@RequestBody MemberRequestDto dto) {
+        String foundId = memberService.verifyCodeAndFindId(dto.getName(), dto.getPhoneNumber(), dto.getCode());
+        Map<String, String> response = new HashMap<>();
+        response.put("loginId", foundId);
+        return ResponseEntity.ok(response);
     }
 }
