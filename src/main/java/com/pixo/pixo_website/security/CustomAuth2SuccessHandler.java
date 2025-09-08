@@ -81,6 +81,7 @@ public class CustomAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .queryParam("accessToken", accessToken)
                 .queryParam("refreshToken", refreshToken)
                 .queryParam("name", URLEncoder.encode(user.getName(), StandardCharsets.UTF_8))
+                .queryParam("role", user.getRole().name())
                 .build()
                 .toUriString();
 

@@ -30,6 +30,10 @@ public class MemberService {
                     .body(new ErrorResponse("이미 존재하는 아이디입니다"));
         }
 
+        if(memberRepository.findByPhoneNumber(dto.getPhoneNumber()).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse("이미 가입된 전화번호입니다."));
+        }
+
         boolean verified = smsService.verifyCode(dto.getPhoneNumber(), dto.getCode());
         if (!verified) {
             return ResponseEntity
@@ -157,6 +161,12 @@ public class MemberService {
         }
         member.setPassword(passwordEncoder.encode(newPassword));
         memberRepository.save(member);
+    }
 
+    public SuccessResponse checkDuplicatedPhoneNumber(String phoneNumber) {
+        if(memberRepository.findByPhoneNumber(phoneNumber).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 가입된 전화번호입니다.");
+        }
+        return new SuccessResponse("사용 가능한 전화번호입니다.");
     }
 }

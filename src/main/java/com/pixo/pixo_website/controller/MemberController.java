@@ -102,4 +102,10 @@ public class MemberController {
         memberService.resetPassword(dto.getLoginId(), dto.getName(), dto.getPhoneNumber(), dto.getCode(), dto.getPassword());
         return ResponseEntity.ok(new SuccessResponse("비밀번호가 성공적으로 변경되었습니다."));
     }
+
+    //전화번호 중복 확인
+    @GetMapping("/check-phone")
+    public ResponseEntity<SuccessResponse> checkDuplicatePhone(@RequestParam String phoneNumber) {
+        return ResponseEntity.ok(memberService.checkDuplicatedPhoneNumber(phoneNumber));
+    }
 }
