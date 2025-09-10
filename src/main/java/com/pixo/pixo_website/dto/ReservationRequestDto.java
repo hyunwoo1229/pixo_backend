@@ -14,4 +14,5 @@ public class ReservationRequestDto {
     private String time;
     private String location;
     private String notes;
+    private String desiredShootDate;
 }

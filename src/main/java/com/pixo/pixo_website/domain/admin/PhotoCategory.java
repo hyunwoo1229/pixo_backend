@@ -1,11 +1,13 @@
 package com.pixo.pixo_website.domain.admin;
 
 public enum PhotoCategory {
-    PROMOTION,           // 홍보용 촬영
-    PORTRAIT,            // 인물 촬영
-    OBJECT,              // 사물 촬영
+    LANDSCAPE,           // 풍경 촬영
+    PRODUCT,             // 제품 촬영
+    FOOD,                // 음식 촬영
+    WEDDING,             // 웨딩 촬영
     REPRESENTATIVE,      // 전체 대표 사진
-    PROMOTION_MAIN,      // 홍보 대표 사진
-    PORTRAIT_MAIN,       // 인물 대표 사진
-    OBJECT_MAIN          // 사물 대표 사진
+    LANDSCAPE_MAIN,      // 풍경 대표 사진
+    PRODUCT_MAIN,        // 제품 대표 사진
+    FOOD_MAIN,           // 음식 대표 사진
+    WEDDING_MAIN;        // 웨딩 대표 사진
 }

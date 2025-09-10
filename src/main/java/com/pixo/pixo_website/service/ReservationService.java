@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,12 +24,6 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final MemberRepository memberRepository;
     private final MailService mailService;
-
-    private static final Map<String, String> shootTypeMap = Map.of(
-            "PROMOTION", "홍보용 촬영",
-            "PORTRAIT", "인물 촬영",
-            "OBJECT", "사물 촬영"
-    );
     private final RateLimiterService rateLimiterService;
 
     @Transactional
@@ -49,21 +44,22 @@ public class ReservationService {
         reservation.setLocation(dto.getLocation());
         reservation.setNotes(dto.getNotes());
         reservation.setReservationCode(generateReservationCode());
+        reservation.setDesiredShootDate(dto.getDesiredShootDate());
 
         Reservation saved = reservationRepository.save(reservation);
 
-        String koreanShootType = shootTypeMap.getOrDefault(saved.getShootType(), saved.getShootType());
 
         // 이메일 내용 구성
         String subject = "[PIXO] 새 예약 알림";
         String body = String.format(
-                "예약 코드: %s \n회원 이름: %s\n전화번호: %s\n\n촬영 종류: %s\n날짜: %s\n촬영 시작 시간: %s\n촬영 장소: %s\n요청사항: %s",
+                "예약 코드: %s \n회원 이름: %s\n전화번호: %s\n\n촬영 종류: %s\n회의 날짜: %s\n회의 시간: %s\n희망 촬영 날짜: %s\n희망 촬영 장소: %s\n요청사항: %s",
                 saved.getReservationCode(),
                 member.getName(),
                 member.getPhoneNumber(),
-                koreanShootType,
+                saved.getShootType(),
                 saved.getDate(),
                 saved.getTime(),
+                saved.getDesiredShootDate(),
                 saved.getLocation(),
                 saved.getNotes()
         );
@@ -92,5 +88,12 @@ public class ReservationService {
         String datePart = LocalDate.now().toString().replace("-", ""); // YYYYMMDD
         String randomPart = java.util.UUID.randomUUID().toString().replaceAll("-", "").substring(0, 6).toUpperCase();
         return datePart + randomPart;
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getBookedTimes(LocalDate date) {
+        return reservationRepository.findByDate(date).stream()
+                .map(Reservation::getTime)
+                .collect(Collectors.toList());
     }
 }

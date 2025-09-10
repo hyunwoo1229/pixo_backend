@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -27,8 +28,8 @@ public class ReservationController {
         return ResponseEntity.ok(new ReservationResponseDto(reservation));
     }
 
-    // ▼▼▼▼▼ 회원의 모든 예약 조회 API 수정 ▼▼▼▼▼
-    @GetMapping("/my") // URL을 '/my'로 변경
+    //내 예약 조회
+    @GetMapping("/my")
     public ResponseEntity<List<ReservationResponseDto>> getMyReservations(Authentication authentication) {
         if (authentication == null) {
             return ResponseEntity.status(401).build(); // 인증 정보가 없으면 401 반환
@@ -36,5 +37,11 @@ public class ReservationController {
         String loginId = authentication.getName(); // 현재 로그인한 사용자의 loginId
         List<ReservationResponseDto> reservations = reservationService.getReservationsByLoginId(loginId);
         return ResponseEntity.ok(reservations);
+    }
+
+    @GetMapping("booked-times")
+    public ResponseEntity<List<String>> getBookedTimesByDate(@RequestParam("date") LocalDate date) {
+        List<String> bookedTimes = reservationService.getBookedTimes(date);
+        return ResponseEntity.ok(bookedTimes);
     }
 }

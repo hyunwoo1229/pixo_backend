@@ -24,4 +24,5 @@ public class Reservation {
     private String location;
     private String notes;
     private String reservationCode;
+    private String desiredShootDate;
 }

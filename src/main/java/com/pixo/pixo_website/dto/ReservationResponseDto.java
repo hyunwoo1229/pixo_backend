@@ -15,6 +15,7 @@ public class ReservationResponseDto {
     private String notes;
     private String memberName;
     private String reservationCode;
+    private String desiredShootDate;
 
     public ReservationResponseDto(Reservation reservation) {
         this.id = reservation.getId();
@@ -25,5 +26,6 @@ public class ReservationResponseDto {
         this.notes = reservation.getNotes();
         this.memberName = reservation.getMember().getName();
         this.reservationCode = reservation.getReservationCode();
+        this.desiredShootDate = reservation.getDesiredShootDate();
     }
 }
