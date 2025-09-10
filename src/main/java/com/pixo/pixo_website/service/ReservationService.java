@@ -1,9 +1,11 @@
 package com.pixo.pixo_website.service;
 
+import com.pixo.pixo_website.domain.BlockedTime;
 import com.pixo.pixo_website.domain.Member;
 import com.pixo.pixo_website.domain.Reservation;
 import com.pixo.pixo_website.dto.ReservationRequestDto;
 import com.pixo.pixo_website.dto.ReservationResponseDto;
+import com.pixo.pixo_website.repository.BlockedTimeRepository;
 import com.pixo.pixo_website.repository.MemberRepository;
 import com.pixo.pixo_website.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +28,7 @@ public class ReservationService {
     private final MemberRepository memberRepository;
     private final MailService mailService;
     private final RateLimiterService rateLimiterService;
+    private final BlockedTimeRepository blockedTimeRepository;
 
     @Transactional
     public Reservation createReservation(String loginId, ReservationRequestDto dto) {
@@ -52,7 +56,7 @@ public class ReservationService {
         // 이메일 내용 구성
         String subject = "[PIXO] 새 예약 알림";
         String body = String.format(
-                "예약 코드: %s \n회원 이름: %s\n전화번호: %s\n\n촬영 종류: %s\n회의 날짜: %s\n회의 시간: %s\n희망 촬영 날짜: %s\n희망 촬영 장소: %s\n요청사항: %s",
+                "예약 코드: %s \n\n회원 이름: %s\n\n전화번호: %s\n\n\n촬영 종류: %s\n\n회의 날짜: %s\n\n회의 시간: %s\n\n희망 촬영 날짜: %s\n\n희망 촬영 장소: %s\n\n요청사항: %s",
                 saved.getReservationCode(),
                 member.getName(),
                 member.getPhoneNumber(),
@@ -92,8 +96,28 @@ public class ReservationService {
 
     @Transactional(readOnly = true)
     public List<String> getBookedTimes(LocalDate date) {
-        return reservationRepository.findByDate(date).stream()
+        System.out.println("--- getBookedTimes 메서드 호출됨 / 날짜: " + date + " ---");
+
+        // 1. 해당 날짜에 실제 예약된 시간 목록 조회
+        List<String> reservedTimes = reservationRepository.findByDate(date).stream()
                 .map(Reservation::getTime)
+                .toList();
+        System.out.println("조회된 사용자 예약 시간: " + reservedTimes);
+
+
+        // 2. 해당 날짜에 관리자가 막은 시간 목록 조회
+        List<String> adminBlockedTimes = blockedTimeRepository.findByBlockedDate(date).stream()
+                .map(BlockedTime::getTimeSlot)
+                .toList();
+        System.out.println("조회된 관리자 설정 불가 시간: " + adminBlockedTimes);
+
+        // 3. 두 목록을 합치고 중복을 제거하여 반환
+        List<String> combinedList = Stream.concat(reservedTimes.stream(), adminBlockedTimes.stream())
+                .distinct()
                 .collect(Collectors.toList());
+        System.out.println("최종 반환될 시간 목록: " + combinedList);
+        System.out.println("----------------------------------------------------");
+
+        return combinedList;
     }
 }
