@@ -24,6 +24,19 @@ public class MemberService {
     private final SmsService smsService;
     //회원가입
     public ResponseEntity<?> register(MemberRequestDto dto) {
+        // 아이디 길이 검증 (4~20자)
+        if (dto.getLoginId().length() < 4 || dto.getLoginId().length() > 20) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("아이디는 4자 이상 20자 이하로 입력해주세요."));
+        }
+        // 비밀번호 길이 검증 (8~16자)
+        if (dto.getPassword().length() < 8 || dto.getPassword().length() > 16) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("비밀번호는 8자 이상 16자 이하로 입력해주세요."));
+        }
+
         if (memberRepository.findByLoginId(dto.getLoginId()).isPresent()) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
