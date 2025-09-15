@@ -1,6 +1,7 @@
 package com.pixo.pixo_website.service;
 
 import com.pixo.pixo_website.domain.Member;
+import com.pixo.pixo_website.domain.MemberStatus;
 import com.pixo.pixo_website.dto.ErrorResponse;
 import com.pixo.pixo_website.dto.MemberRequestDto;
 import com.pixo.pixo_website.dto.SuccessResponse;
@@ -39,6 +40,12 @@ public class AuthService {
         }
 
         Member member = optionalMember.get();
+
+        if (member.getStatus() == MemberStatus.DELETED) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(new ErrorResponse("이미 탈퇴 처리된 계정입니다."));
+        }
 
         if (!passwordEncoder.matches(dto.getPassword(), member.getPassword())) {
             return ResponseEntity

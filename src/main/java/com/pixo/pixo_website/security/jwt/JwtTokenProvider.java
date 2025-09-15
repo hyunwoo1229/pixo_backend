@@ -26,30 +26,14 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(secretBytes);
     }
 
-    /**
-     * AccessToken 생성 시 memberId를 추가로 받습니다.
-     * @param loginId 사용자 로그인 ID
-     * @param memberId 사용자 숫자 ID (PK)
-     * @return 생성된 AccessToken
-     */
     public String createAccessToken(String loginId, Long memberId) {
         return createToken(loginId, memberId, ACCESS_TOKEN_EXPIRATION_MS);
     }
 
-    /**
-     * RefreshToken 생성 시 memberId를 추가로 받습니다.
-     * @param loginId 사용자 로그인 ID
-     * @param memberId 사용자 숫자 ID (PK)
-     * @return 생성된 RefreshToken
-     */
     public String createRefreshToken(String loginId, Long memberId) {
         return createToken(loginId, memberId, REFRESH_TOKEN_EXPIRATION_MS);
     }
 
-    /**
-     * JWT를 생성합니다.
-     * claim에 "memberId" 키로 사용자의 숫자 ID를 추가합니다.
-     */
     private String createToken(String loginId, Long memberId, long expirationMs) {
         return Jwts.builder()
                 .setSubject(loginId)

@@ -38,9 +38,9 @@ public class PhotoService {
             } catch (IllegalArgumentException ignored) { /* 무시 */ }
         }
 
-        // 4) DTO 매핑 (네가 만든 생성자 사용)
+        // 4) DTO 매핑 (만든 생성자 사용)
         return list.stream()
-                .map(PhotoResponseDto::new) // ✅ PhotoResponseDto(Photo p)
-                .collect(Collectors.toList()); // (JDK 16+면 .toList() 써도 됨)
+                .map(PhotoResponseDto::new) // PhotoResponseDto(Photo p)
+                .collect(Collectors.toList());
     }
 }

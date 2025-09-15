@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 
 
 @Getter
@@ -25,6 +26,12 @@ public class Member {
 
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER; // 기본값: 일반 사용자
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MemberStatus status = MemberStatus.ACTIVE;
+
+    private LocalDateTime deletedAt;
 
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;

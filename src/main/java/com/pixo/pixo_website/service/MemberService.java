@@ -1,6 +1,7 @@
 package com.pixo.pixo_website.service;
 
 import com.pixo.pixo_website.domain.Member;
+import com.pixo.pixo_website.domain.MemberStatus;
 import com.pixo.pixo_website.dto.ChangePasswordRequest;
 import com.pixo.pixo_website.dto.ErrorResponse;
 import com.pixo.pixo_website.dto.MemberRequestDto;
@@ -14,6 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +47,9 @@ public class MemberService {
         }
 
         if(memberRepository.findByPhoneNumber(dto.getPhoneNumber()).isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse("이미 가입된 전화번호입니다."));
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(new ErrorResponse("이미 가입된 전화번호입니다."));
         }
 
         boolean verified = smsService.verifyCode(dto.getPhoneNumber(), dto.getCode());
@@ -103,7 +108,6 @@ public class MemberService {
 
     //아이디 중복 확인
     public SuccessResponse checkDuplicatedId(String loginId) {
-        System.out.println("Received check-id request with loginId = " + loginId);
         if(memberRepository.findByLoginId(loginId).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 존재하는 아이디입니다");
         }
@@ -117,7 +121,13 @@ public class MemberService {
     //회원 탈퇴
     @Transactional
     public void deleteMember(Member member) {
-        memberRepository.delete(member);
+        member.setStatus(MemberStatus.DELETED);
+        member.setDeletedAt(LocalDateTime.now());
+
+        member.setPassword(null);
+        member.setRefreshToken(null);
+
+        memberRepository.save(member);
     }
 
     //아이디 찾기 인증번호 발송
