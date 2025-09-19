@@ -96,12 +96,12 @@ public class SecurityConfig {
 
     private ClientRegistration googleClientRegistration() {
         return ClientRegistration.withRegistrationId("google")
-                .clientId("1067642253282-b0oi07bo4l4bjhdqtkrndmdr31ekj5cc.apps.googleusercontent.com")
+                .clientId("976640207402-j0nksoh9jhh4dpar8kpli4dvajlvt0qe.apps.googleusercontent.com")
                 .clientSecret(googleClientSecret)
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .redirectUri("{baseUrl}/login/oauth2/code/google")
-                .scope("profile", "email", "https://www.googleapis.com/auth/youtube.upload")
+                .scope("profile", "email")
                 .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
                 .tokenUri("https://oauth2.googleapis.com/token")
                 .userInfoUri("https://www.googleapis.com/oauth2/v3/userinfo")
@@ -115,7 +115,7 @@ public class SecurityConfig {
 
     private ClientRegistration naverClientRegistration() {
         return ClientRegistration.withRegistrationId("naver")
-                .clientId("c_hS5mSslbgrjKqAyZEY")
+                .clientId("lvvIHsKCMB90fvjwZxuj")
                 .clientSecret(naverClientSecret)
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
@@ -131,7 +131,7 @@ public class SecurityConfig {
 
     private ClientRegistration kakaoClientRegistration() {
         return ClientRegistration.withRegistrationId("kakao")
-                .clientId("3efa0bed9053e9410898bc9f59ba5c79")
+                .clientId("04bad0ec44b9f6d345952609b276d971")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .redirectUri("{baseUrl}/login/oauth2/code/kakao")

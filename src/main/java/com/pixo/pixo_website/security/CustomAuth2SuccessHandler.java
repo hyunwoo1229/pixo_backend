@@ -43,6 +43,7 @@ public class CustomAuth2SuccessHandler implements AuthenticationSuccessHandler {
         OAuth2User oAuth2User = oauthToken.getPrincipal();
         String provider = oauthToken.getAuthorizedClientRegistrationId(); // "google", "naver", "kakao"
         String loginId = extractLoginId(oAuth2User, provider);
+        String name = extractName(oAuth2User, provider);
 
         // 사용자 정보가 DB에 없다면 회원가입 처리
         Optional<Member> existing = memberRepository.findByLoginId(loginId);
@@ -50,7 +51,7 @@ public class CustomAuth2SuccessHandler implements AuthenticationSuccessHandler {
             Member newMember = new Member();
             newMember.setLoginId(loginId);
             newMember.setPassword(null);
-            newMember.setName("betaName"); //나중에 수정해야됨
+            newMember.setName(name); //나중에 수정해야됨
             newMember.setPhoneNumber(null);
             newMember.setProvider(provider);
             return memberRepository.save(newMember);
@@ -117,5 +118,19 @@ public class CustomAuth2SuccessHandler implements AuthenticationSuccessHandler {
         }
 
         return provider + "_unknown";
+    }
+
+    private String extractName(OAuth2User oAuth2User, String provider) {
+        if ("google".equals(provider)) {
+            return oAuth2User.getAttribute("name");
+        } else if ("naver".equals(provider)) {
+            Map<String, Object> response = oAuth2User.getAttribute("response");
+            return (String) response.get("name");
+        } else if ("kakao".equals(provider)) {
+            Map<String, Object> account = oAuth2User.getAttribute("kakao_account");
+            Map<String, Object> profile = (Map<String, Object>) account.get("profile");
+            return (String) profile.get("nickname");
+        }
+        return "Unknown";
     }
 }

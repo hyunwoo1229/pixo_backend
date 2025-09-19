@@ -95,28 +95,21 @@ public class ReservationService {
 
     @Transactional(readOnly = true)
     public List<String> getBookedTimes(LocalDate date) {
-        System.out.println("--- getBookedTimes 메서드 호출됨 / 날짜: " + date + " ---");
 
         // 1. 해당 날짜에 실제 예약된 시간 목록 조회
         List<String> reservedTimes = reservationRepository.findByDate(date).stream()
                 .map(Reservation::getTime)
                 .toList();
-        System.out.println("조회된 사용자 예약 시간: " + reservedTimes);
-
 
         // 2. 해당 날짜에 관리자가 막은 시간 목록 조회
         List<String> adminBlockedTimes = blockedTimeRepository.findByBlockedDate(date).stream()
                 .map(BlockedTime::getTimeSlot)
                 .toList();
-        System.out.println("조회된 관리자 설정 불가 시간: " + adminBlockedTimes);
 
         // 3. 두 목록을 합치고 중복을 제거하여 반환
         List<String> combinedList = Stream.concat(reservedTimes.stream(), adminBlockedTimes.stream())
                 .distinct()
                 .collect(Collectors.toList());
-        System.out.println("최종 반환될 시간 목록: " + combinedList);
-        System.out.println("----------------------------------------------------");
-
         return combinedList;
     }
 }
