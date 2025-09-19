@@ -9,8 +9,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -42,5 +46,58 @@ public class PhotoService {
         return list.stream()
                 .map(PhotoResponseDto::new) // PhotoResponseDto(Photo p)
                 .collect(Collectors.toList());
+    }
+
+    public Map<String, PhotoResponseDto> getHomePhotos() {
+        Map<String, PhotoResponseDto> homePhotos = new HashMap<>();
+        List<PhotoCategory> mainCategories = List.of(
+                PhotoCategory.REPRESENTATIVE, PhotoCategory.LANDSCAPE_MAIN,
+                PhotoCategory.PRODUCT_MAIN, PhotoCategory.FOOD_MAIN, PhotoCategory.WEDDING_MAIN
+        );
+
+        // 1. 필요한 대표 사진들을 한 번의 쿼리로 조회
+        List<Photo> photos = photoRepository.findByCategoryIn(mainCategories);
+        Map<PhotoCategory, Photo> photoMap = photos.stream()
+                .collect(Collectors.toMap(Photo::getCategory, p -> p, (p1, p2) -> p1)); // 중복 시 첫 번째 것 사용
+
+        // 2. 각 카테고리별로 사진을 할당하고, 없으면 폴백(fallback) 로직 수행
+        mainCategories.forEach(cat -> {
+            Optional<Photo> photoOpt = Optional.ofNullable(photoMap.get(cat));
+
+            if (photoOpt.isEmpty() && cat.name().endsWith("_MAIN")) {
+                // _MAIN 사진이 없을 경우, 기본 카테고리에서 한 장 찾아옴
+                try {
+                    PhotoCategory baseCat = PhotoCategory.valueOf(cat.name().replace("_MAIN", ""));
+                    photoOpt = photoRepository.findFirstByCategory(baseCat);
+                } catch (IllegalArgumentException ignored) {}
+            }
+
+            photoOpt.ifPresent(p -> homePhotos.put(cat.name(), new PhotoResponseDto(p)));
+        });
+
+        return homePhotos;
+    }
+
+    public List<PhotoResponseDto> getCategoryDetailPhotos(String categoryId) {
+        try {
+            PhotoCategory baseCategory = PhotoCategory.valueOf(categoryId);
+            PhotoCategory mainCategory = PhotoCategory.valueOf(categoryId + "_MAIN");
+
+            // 1. 대표 사진과 일반 사진을 각각 조회
+            List<Photo> mainPhotos = photoRepository.findByCategory(mainCategory);
+            List<Photo> generalPhotos = photoRepository.findByCategory(baseCategory);
+
+            // 2. 두 리스트를 합치고 중복을 제거하여 하나의 리스트로 만듦
+            List<Photo> combinedList = Stream.concat(mainPhotos.stream(), generalPhotos.stream())
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            return combinedList.stream()
+                    .map(PhotoResponseDto::new)
+                    .collect(Collectors.toList());
+
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "허용되지 않는 카테고리: " + categoryId);
+        }
     }
 }

@@ -5,12 +5,10 @@ import com.pixo.pixo_website.service.PhotoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -25,5 +23,15 @@ public class PhotoController {
     @GetMapping
     public ResponseEntity<List<PhotoResponseDto>> getPhotosByCategory(@RequestParam("category") String category) {
         return ResponseEntity.ok(photoService.getPhotosByCategory(category));
+    }
+
+    @GetMapping("/home")
+    public ResponseEntity<Map<String, PhotoResponseDto>> getHomePhotos() {
+        return ResponseEntity.ok(photoService.getHomePhotos());
+    }
+
+    @GetMapping("/category-detail/{categoryId}")
+    public ResponseEntity<List<PhotoResponseDto>> getCategoryDetailPhotos(@PathVariable String categoryId) {
+        return ResponseEntity.ok(photoService.getCategoryDetailPhotos(categoryId));
     }
 }
