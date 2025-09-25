@@ -1,4 +1,10 @@
+# Cloud Build가 빌드 로그를 저장할 방식을 지정합니다.
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+# Cloud Build가 빌드를 실행할 서비스 계정 지정
 serviceAccount: 'projects/pixo-website-472609/serviceAccounts/pixo-storage-access@pixo-website-472609.iam.gserviceaccount.com'
+
 steps:
   # 1) Gradle 빌드 (캐시 새로고침 + 데몬 비활성 + clean)
   - name: 'gradle:jdk21'
