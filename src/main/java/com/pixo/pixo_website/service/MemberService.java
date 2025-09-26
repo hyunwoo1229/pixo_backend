@@ -2,10 +2,7 @@ package com.pixo.pixo_website.service;
 
 import com.pixo.pixo_website.domain.Member;
 import com.pixo.pixo_website.domain.MemberStatus;
-import com.pixo.pixo_website.dto.ChangePasswordRequest;
-import com.pixo.pixo_website.dto.ErrorResponse;
-import com.pixo.pixo_website.dto.MemberRequestDto;
-import com.pixo.pixo_website.dto.SuccessResponse;
+import com.pixo.pixo_website.dto.*;
 import com.pixo.pixo_website.repository.MemberRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -191,5 +188,12 @@ public class MemberService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 가입된 전화번호입니다.");
         }
         return new SuccessResponse("사용 가능한 전화번호입니다.");
+    }
+
+    public MemberInfoResponse getMemberInfo(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일치하는 회원 정보가 없습니다."));
+
+        return MemberInfoResponse.from(member);
     }
 }

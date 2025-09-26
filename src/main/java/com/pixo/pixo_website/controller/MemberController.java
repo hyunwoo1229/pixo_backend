@@ -2,6 +2,7 @@ package com.pixo.pixo_website.controller;
 
 import com.pixo.pixo_website.domain.Member;
 import com.pixo.pixo_website.dto.ChangePasswordRequest;
+import com.pixo.pixo_website.dto.MemberInfoResponse;
 import com.pixo.pixo_website.dto.MemberRequestDto;
 import com.pixo.pixo_website.dto.SuccessResponse;
 import com.pixo.pixo_website.repository.MemberRepository;
@@ -107,5 +108,11 @@ public class MemberController {
     @GetMapping("/check-phone")
     public ResponseEntity<SuccessResponse> checkDuplicatePhone(@RequestParam String phoneNumber) {
         return ResponseEntity.ok(memberService.checkDuplicatedPhoneNumber(phoneNumber));
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<MemberInfoResponse> getMemberProfile(@AuthenticationPrincipal Long MemberId) {
+        MemberInfoResponse response = memberService.getMemberInfo(MemberId);
+        return ResponseEntity.ok(response);
     }
 }
