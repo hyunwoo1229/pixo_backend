@@ -108,12 +108,13 @@ public class CustomAuth2SuccessHandler implements AuthenticationSuccessHandler {
         if ("kakao".equals(provider)) {
             Map<String, Object> account = oAuth2User.getAttribute("kakao_account");
             String email = (String) account.get("email");
+            Long kakaoId = oAuth2User.getAttribute("id");
             if (email != null) {
-                return "kakao_" + email;
+                return "kakao_" + email + "_" + kakaoId;
             } else {
                 Map<String, Object> profile = (Map<String, Object>) account.get("profile");
                 String nickname = (String) profile.get("nickname");
-                return "kakao_" + nickname;
+                return "kakao_" + nickname + "_" + kakaoId;
             }
         }
 
