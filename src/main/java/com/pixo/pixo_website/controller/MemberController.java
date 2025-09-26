@@ -48,9 +48,8 @@ public class MemberController {
 
     //비밀번호 변경
     @PutMapping("/profile/password")
-    public ResponseEntity<SuccessResponse> updatePassword(@RequestBody ChangePasswordRequest req, Authentication authentication) {
-        memberService.changePassword(req, authentication);
-        return ResponseEntity.ok(new SuccessResponse("비밀번호가 변경되었습니다."));
+    public ResponseEntity<?> updatePassword(@RequestBody ChangePasswordRequest req, Authentication authentication) {
+        return memberService.changePassword(req, authentication);
     }
 
     //아이디 중복 확인

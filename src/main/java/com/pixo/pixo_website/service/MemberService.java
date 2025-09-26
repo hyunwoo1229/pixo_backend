@@ -92,15 +92,25 @@ public class MemberService {
     }
 
     //비밀번호 변경
-    public void changePassword(ChangePasswordRequest req, Authentication auth) {
-        String loginId = (String) auth.getPrincipal();
+    @Transactional
+    public ResponseEntity<?> changePassword(ChangePasswordRequest req, Authentication auth) {
+        String loginId = auth.getName();
         Member member = memberRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 사용자입니다."));
+
         if(!passwordEncoder.matches(req.getOldPassword(), member.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("현재 비밀번호가 일치하지 않습니다."));
         }
+
+        String newPassword = req.getNewPassword();
+        if(newPassword.length() < 8 || newPassword.length() > 16) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("비밀번호는 8자 이상 16자 이하로 입력해주세요."));
+        }
+
         member.setPassword(passwordEncoder.encode(req.getNewPassword()));
         memberRepository.save(member);
+
+        return ResponseEntity.ok(new SuccessResponse("비밀번호가 변경되었습니다."));
     }
 
     //아이디 중복 확인
