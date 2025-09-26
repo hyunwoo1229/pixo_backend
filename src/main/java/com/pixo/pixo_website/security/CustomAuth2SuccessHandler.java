@@ -67,7 +67,7 @@ public class CustomAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         if(user.getName() == null || user.getPhoneNumber() == null) {
             String redirectUrl = UriComponentsBuilder
-                    .fromUriString("http://localhost:5173/social-extra")
+                    .fromUriString("https://pixo-frontend.vercel.app/social-extra")
                     .queryParam("accessToken", accessToken)
                     .queryParam("refreshToken", refreshToken)
                     .queryParam("name", URLEncoder.encode(user.getName(), StandardCharsets.UTF_8))
@@ -78,7 +78,7 @@ public class CustomAuth2SuccessHandler implements AuthenticationSuccessHandler {
         }
 
         // 리다이렉트할 URL (프론트에 토큰 전달)
-        String redirectUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/oauth-success")
+        String redirectUrl = UriComponentsBuilder.fromUriString("https://pixo-frontend.vercel.app/oauth-success")
                 .queryParam("accessToken", accessToken)
                 .queryParam("refreshToken", refreshToken)
                 .queryParam("name", URLEncoder.encode(user.getName(), StandardCharsets.UTF_8))
