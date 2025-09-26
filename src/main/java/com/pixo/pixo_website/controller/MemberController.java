@@ -111,8 +111,9 @@ public class MemberController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<MemberInfoResponse> getMemberProfile(@AuthenticationPrincipal Long MemberId) {
-        MemberInfoResponse response = memberService.getMemberInfo(MemberId);
+    public ResponseEntity<MemberInfoResponse> getMemberProfile(Authentication authentication) {
+        String loginId = authentication.getName();
+        MemberInfoResponse response = memberService.getMemberInfoByAuthentication(authentication);
         return ResponseEntity.ok(response);
     }
 }

@@ -190,9 +190,21 @@ public class MemberService {
         return new SuccessResponse("사용 가능한 전화번호입니다.");
     }
 
-    public MemberInfoResponse getMemberInfo(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일치하는 회원 정보가 없습니다."));
+    public MemberInfoResponse getMemberInfoByAuthentication(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+        }
+
+        String loginId = authentication.getName();
+
+        if (loginId == null || loginId.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "사용자 정보를 확인할 수 없습니다.");
+        }
+        Member member = memberRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "해당 로그인 ID의 회원을 찾을 수 없습니다."
+                ));
 
         return MemberInfoResponse.from(member);
     }
