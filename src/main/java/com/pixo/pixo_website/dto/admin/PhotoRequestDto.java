@@ -2,18 +2,14 @@ package com.pixo.pixo_website.dto.admin;
 
 import com.pixo.pixo_website.domain.admin.PhotoCategory;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
-
+@NoArgsConstructor
 public class PhotoRequestDto {
-    private PhotoCategory category;
-    private MultipartFile imageFile;
-
-    public PhotoRequestDto(String category, MultipartFile imageFile) {
-        this.category = PhotoCategory.valueOf(category);
-        this.imageFile = imageFile;
-    }
+    private String category;
+    private String originalFileName;
+    private String savedFileName;
 }
