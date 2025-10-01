@@ -133,6 +133,7 @@ public class MemberService {
 
         member.setPassword(null);
         member.setRefreshToken(null);
+        member.setPhoneNumber(null);
 
         memberRepository.save(member);
     }
