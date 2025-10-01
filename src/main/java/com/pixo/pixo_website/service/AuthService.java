@@ -74,11 +74,16 @@ public class AuthService {
     public ResponseEntity<?> logout(HttpServletRequest request) {
         String token = jwtTokenProvider.resolveToken(request);
         if (token != null) {
-            String loginId = jwtTokenProvider.getLoginId(token);
-            memberRepository.findByLoginId(loginId).ifPresent(member -> {
-                member.updateRefreshToken(null); //  DB에서 Refresh Token 제거
-                memberRepository.save(member);
-            });
+            try {
+                String loginId = jwtTokenProvider.getLoginId(token); // 이 부분에서 예외 발생 가능
+                memberRepository.findByLoginId(loginId).ifPresent(member -> {
+                    member.updateRefreshToken(null); // DB에서 Refresh Token 제거
+                    memberRepository.save(member);
+                    log.info("Successfully logged out and cleared refresh token for user: {}", loginId);
+                });
+            } catch (io.jsonwebtoken.ExpiredJwtException e) {
+                log.info("Logout request with an expired access token. Proceeding as normal logout.");
+            }
         }
         return ResponseEntity.ok(new SuccessResponse("로그아웃 완료"));
     }
