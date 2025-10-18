@@ -51,7 +51,7 @@ public class CustomAuth2SuccessHandler implements AuthenticationSuccessHandler {
             Member newMember = new Member();
             newMember.setLoginId(loginId);
             newMember.setPassword(null);
-            newMember.setName(name); //나중에 수정해야됨
+            newMember.setName(name);
             newMember.setPhoneNumber(null);
             newMember.setProvider(provider);
             return memberRepository.save(newMember);
@@ -67,7 +67,7 @@ public class CustomAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         if(user.getName() == null || user.getPhoneNumber() == null) {
             String redirectUrl = UriComponentsBuilder
-                    .fromUriString("https://pixo-frontend.vercel.app/social-extra")
+                    .fromUriString("https://www.pixostudio.shop/social-extra")
                     .queryParam("accessToken", accessToken)
                     .queryParam("refreshToken", refreshToken)
                     .queryParam("name", URLEncoder.encode(user.getName(), StandardCharsets.UTF_8))
@@ -78,7 +78,7 @@ public class CustomAuth2SuccessHandler implements AuthenticationSuccessHandler {
         }
 
         // 리다이렉트할 URL (프론트에 토큰 전달)
-        String redirectUrl = UriComponentsBuilder.fromUriString("https://pixo-frontend.vercel.app/oauth-success")
+        String redirectUrl = UriComponentsBuilder.fromUriString("https://www.pixostudio.shop/oauth-success")
                 .queryParam("accessToken", accessToken)
                 .queryParam("refreshToken", refreshToken)
                 .queryParam("name", URLEncoder.encode(user.getName(), StandardCharsets.UTF_8))
