@@ -1,5 +1,6 @@
 package com.pixo.pixo_website.controller;
 
+import com.pixo.pixo_website.dto.admin.CategoryDetailResponseDto;
 import com.pixo.pixo_website.dto.admin.PhotoResponseDto;
 import com.pixo.pixo_website.service.PhotoService;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class PhotoController {
     }
 
     @GetMapping("/category-detail/{categoryId}")
-    public ResponseEntity<List<PhotoResponseDto>> getCategoryDetailPhotos(@PathVariable String categoryId) {
+    public ResponseEntity<CategoryDetailResponseDto> getCategoryDetailPhotos(@PathVariable String categoryId) {
         return ResponseEntity.ok(photoService.getCategoryDetailPhotos(categoryId));
     }
 }

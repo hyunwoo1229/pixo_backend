@@ -2,6 +2,7 @@ package com.pixo.pixo_website.service;
 
 import com.pixo.pixo_website.domain.admin.Photo;
 import com.pixo.pixo_website.domain.admin.PhotoCategory;
+import com.pixo.pixo_website.dto.admin.CategoryDetailResponseDto;
 import com.pixo.pixo_website.dto.admin.PhotoResponseDto;
 import com.pixo.pixo_website.repository.admin.PhotoRepository;
 import lombok.RequiredArgsConstructor;
@@ -79,23 +80,24 @@ public class PhotoService {
         return homePhotos;
     }
 
-    public List<PhotoResponseDto> getCategoryDetailPhotos(String categoryId) {
+    public CategoryDetailResponseDto getCategoryDetailPhotos(String categoryId) {
         try {
             PhotoCategory baseCategory = PhotoCategory.valueOf(categoryId);
             PhotoCategory mainCategory = PhotoCategory.valueOf(categoryId + "_MAIN");
 
             // 1. 대표 사진과 일반 사진을 각각 조회
-            List<Photo> mainPhotos = photoRepository.findByCategory(mainCategory);
-            List<Photo> generalPhotos = photoRepository.findByCategory(baseCategory);
+            List<Photo> mainPhotoEntities = photoRepository.findByCategory(mainCategory);
+            List<Photo> generalPhotoEntities = photoRepository.findByCategory(baseCategory);
 
-            // 2. 두 리스트를 합치고 중복을 제거하여 하나의 리스트로 만듦
-            List<Photo> combinedList = Stream.concat(mainPhotos.stream(), generalPhotos.stream())
-                    .distinct()
-                    .collect(Collectors.toList());
-
-            return combinedList.stream()
+            List<PhotoResponseDto> mainPhotosDto = mainPhotoEntities.stream()
                     .map(PhotoResponseDto::new)
                     .collect(Collectors.toList());
+
+            List<PhotoResponseDto> generalPhotosDto = generalPhotoEntities.stream()
+                    .map(PhotoResponseDto::new)
+                    .collect(Collectors.toList());
+
+            return new CategoryDetailResponseDto(mainPhotosDto, generalPhotosDto);
 
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "허용되지 않는 카테고리: " + categoryId);
