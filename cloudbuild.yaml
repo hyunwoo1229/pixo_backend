@@ -1,5 +1,12 @@
+# Cloud Build가 빌드 로그를 저장할 방식을 지정합니다.
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+# Cloud Build가 빌드를 실행할 서비스 계정 지정
+serviceAccount: 'projects/pixo-website-472609/serviceAccounts/pixo-storage-access@pixo-website-472609.iam.gserviceaccount.com'
+
 steps:
-  # 1) Gradle 빌드
+  # 1) Gradle 빌드 (캐시 새로고침 + 데몬 비활성 + clean)
   - name: 'gradle:jdk21'
     entrypoint: 'bash'
     args:
@@ -8,19 +15,19 @@ steps:
     id: 'Build-Application-Jar'
 
   # 2) Docker 이미지 빌드
-  - name: 'gcr.io/cloud-builders/docker:27.3.1'   # ← 버전 명시
+  - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/pixo-website:latest', '.']
     id: 'Build-Docker-Image'
     waitFor: ['Build-Application-Jar']
 
   # 3) Docker 이미지 Push
-  - name: 'gcr.io/cloud-builders/docker:27.3.1'   # ← 동일 버전 유지
+  - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/pixo-website:latest']
     id: 'Push-Docker-Image'
     waitFor: ['Build-Docker-Image']
 
   # 4) Cloud Run 배포
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:471.0.0-slim'
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'gcloud'
     args:
       - 'run'

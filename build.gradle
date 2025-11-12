@@ -51,12 +51,10 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-/*
+
 configurations.all {
 	resolutionStrategy {
 		force "com.google.cloud.sql:mysql-socket-factory-connector-j-8:1.25.3"
 		force "com.google.cloud.sql:jdbc-socket-factory-core:1.25.3"
 	}
 }
-
- */
