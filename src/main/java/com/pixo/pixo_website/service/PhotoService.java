@@ -52,7 +52,8 @@ public class PhotoService {
         Map<String, PhotoResponseDto> homePhotos = new HashMap<>();
         List<PhotoCategory> mainCategories = List.of(
                 PhotoCategory.REPRESENTATIVE, PhotoCategory.LANDSCAPE_MAIN,
-                PhotoCategory.PRODUCT_MAIN, PhotoCategory.FOOD_MAIN, PhotoCategory.WEDDING_MAIN
+                PhotoCategory.PRODUCT_MAIN, PhotoCategory.FOOD_MAIN, PhotoCategory.WEDDING_MAIN,
+                PhotoCategory.FASHION_MAIN, PhotoCategory.CAR_MAIN, PhotoCategory.DRONE_LANDSCAPE_MAIN
         );
 
         // 1. 필요한 대표 사진들을 한 번의 쿼리로 조회
