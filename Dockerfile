@@ -1,5 +1,5 @@
 # 1. Base Image 선택
-FROM openjdk:21-jre-slim
+FROM eclipse-temurin:21-jre-alpine
 
 # 2. JAR 파일 이름을 변수로 정의
 ARG JAR_FILE="pixo-website-0.0.1-SNAPSHOT.jar"
