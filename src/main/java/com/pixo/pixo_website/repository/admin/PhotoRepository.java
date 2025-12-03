@@ -17,4 +17,9 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
     // 해당 카테고리의 sequence 최댓값을 가져옴 (사진이 하나도 없으면 null 반환)
     @Query("SELECT MAX(p.sequence) FROM Photo p WHERE p.category = :category")
     Integer findMaxSequenceByCategory(@Param("category") PhotoCategory category);
+
+    List<Photo> findByCategoryOrderBySequenceDesc(PhotoCategory category);
+
+    Optional<Photo> findFirstByCategoryOrderBySequenceDesc(PhotoCategory category);
+
 }

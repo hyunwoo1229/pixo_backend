@@ -143,11 +143,16 @@ public class AdminPhotoService {
     }
 
     public void updatePhotoOrder(List<Long> photoIds) {
-        for (int i = 0; i < photoIds.size(); i++) {
+
+        int size = photoIds.size();
+
+        for (int i = 0; i < size; i++) {
             Long id = photoIds.get(i);
             Photo photo = photoRepository.findById(id)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-            photo.setSequence(i); // 리스트 인덱스를 순서 값으로 저장
+
+            photo.setSequence(size - 1 - i);
+
             photoRepository.save(photo);
         }
     }

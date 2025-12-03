@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -32,20 +31,21 @@ public class PhotoService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "허용되지 않는 카테고리: " + category);
         }
 
-        // 2) 1차 조회
-        List<Photo> list = photoRepository.findByCategoryOrderBySequenceAsc(cat);
+        // [수정] Asc -> Desc (큰 숫자가 먼저 나옴 = 최신순/지정순서)
+        List<Photo> list = photoRepository.findByCategoryOrderBySequenceDesc(cat);
 
         // 3) (선택) *_MAIN 비었으면 기본 카테고리로 폴백
         if (list.isEmpty() && category.endsWith("_MAIN")) {
             try {
                 PhotoCategory base = PhotoCategory.valueOf(category.replace("_MAIN", ""));
-                list = photoRepository.findByCategoryOrderBySequenceAsc(base);
+                // [수정] 폴백 데이터도 내림차순 정렬
+                list = photoRepository.findByCategoryOrderBySequenceDesc(base);
             } catch (IllegalArgumentException ignored) { /* 무시 */ }
         }
 
-        // 4) DTO 매핑 (만든 생성자 사용)
+        // 4) DTO 매핑
         return list.stream()
-                .map(PhotoResponseDto::new) // PhotoResponseDto(Photo p)
+                .map(PhotoResponseDto::new)
                 .collect(Collectors.toList());
     }
 
@@ -57,20 +57,17 @@ public class PhotoService {
                 PhotoCategory.FASHION_MAIN, PhotoCategory.CAR_MAIN, PhotoCategory.DRONE_LANDSCAPE_MAIN
         );
 
-        // 1. 필요한 대표 사진들을 한 번의 쿼리로 조회
         List<Photo> photos = photoRepository.findByCategoryIn(mainCategories);
         Map<PhotoCategory, Photo> photoMap = photos.stream()
-                .collect(Collectors.toMap(Photo::getCategory, p -> p, (p1, p2) -> p1)); // 중복 시 첫 번째 것 사용
+                .collect(Collectors.toMap(Photo::getCategory, p -> p, (p1, p2) -> p1));
 
-        // 2. 각 카테고리별로 사진을 할당하고, 없으면 폴백(fallback) 로직 수행
         mainCategories.forEach(cat -> {
             Optional<Photo> photoOpt = Optional.ofNullable(photoMap.get(cat));
 
             if (photoOpt.isEmpty() && cat.name().endsWith("_MAIN")) {
-                // _MAIN 사진이 없을 경우, 기본 카테고리에서 한 장 찾아옴
                 try {
                     PhotoCategory baseCat = PhotoCategory.valueOf(cat.name().replace("_MAIN", ""));
-                    photoOpt = photoRepository.findFirstByCategory(baseCat);
+                    photoOpt = photoRepository.findFirstByCategoryOrderBySequenceDesc(baseCat);
                 } catch (IllegalArgumentException ignored) {}
             }
 
@@ -85,9 +82,8 @@ public class PhotoService {
             PhotoCategory baseCategory = PhotoCategory.valueOf(categoryId);
             PhotoCategory mainCategory = PhotoCategory.valueOf(categoryId + "_MAIN");
 
-            // 1. 대표 사진과 일반 사진을 각각 조회
-            List<Photo> mainPhotoEntities = photoRepository.findByCategoryOrderBySequenceAsc(mainCategory);
-            List<Photo> generalPhotoEntities = photoRepository.findByCategoryOrderBySequenceAsc(baseCategory);
+            List<Photo> mainPhotoEntities = photoRepository.findByCategoryOrderBySequenceDesc(mainCategory);
+            List<Photo> generalPhotoEntities = photoRepository.findByCategoryOrderBySequenceDesc(baseCategory);
 
             List<PhotoResponseDto> mainPhotosDto = mainPhotoEntities.stream()
                     .map(PhotoResponseDto::new)
