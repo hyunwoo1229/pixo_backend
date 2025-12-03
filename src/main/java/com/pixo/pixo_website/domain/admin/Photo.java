@@ -17,7 +17,7 @@ public class Photo {
     @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false, length = 50)
     private PhotoCategory category;
-
+    private Integer sequence = 0;
     private String originalFileName;
     private String savedFileName;
 }

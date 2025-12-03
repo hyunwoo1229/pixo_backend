@@ -33,13 +33,13 @@ public class PhotoService {
         }
 
         // 2) 1차 조회
-        List<Photo> list = photoRepository.findByCategory(cat);
+        List<Photo> list = photoRepository.findByCategoryOrderBySequenceAsc(cat);
 
         // 3) (선택) *_MAIN 비었으면 기본 카테고리로 폴백
         if (list.isEmpty() && category.endsWith("_MAIN")) {
             try {
                 PhotoCategory base = PhotoCategory.valueOf(category.replace("_MAIN", ""));
-                list = photoRepository.findByCategory(base);
+                list = photoRepository.findByCategoryOrderBySequenceAsc(base);
             } catch (IllegalArgumentException ignored) { /* 무시 */ }
         }
 
@@ -86,8 +86,8 @@ public class PhotoService {
             PhotoCategory mainCategory = PhotoCategory.valueOf(categoryId + "_MAIN");
 
             // 1. 대표 사진과 일반 사진을 각각 조회
-            List<Photo> mainPhotoEntities = photoRepository.findByCategory(mainCategory);
-            List<Photo> generalPhotoEntities = photoRepository.findByCategory(baseCategory);
+            List<Photo> mainPhotoEntities = photoRepository.findByCategoryOrderBySequenceAsc(mainCategory);
+            List<Photo> generalPhotoEntities = photoRepository.findByCategoryOrderBySequenceAsc(baseCategory);
 
             List<PhotoResponseDto> mainPhotosDto = mainPhotoEntities.stream()
                     .map(PhotoResponseDto::new)

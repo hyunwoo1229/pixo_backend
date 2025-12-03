@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -51,6 +52,9 @@ public class AdminPhotoController {
         return ResponseEntity.ok(new SuccessResponse("사진이 삭제 되었습니다."));
     }
 
-
+    @PostMapping("/order")
+    public void changeOrder(@RequestBody List<Long> photoIds) {
+        adminPhotoService.updatePhotoOrder(photoIds);
+    }
 
 }

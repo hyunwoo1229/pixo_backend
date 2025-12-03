@@ -109,6 +109,10 @@ public class AdminPhotoService {
         photo.setOriginalFileName(dto.getOriginalFileName());
         photo.setSavedFileName(dto.getSavedFileName());
 
+        Integer maxSeq = photoRepository.findMaxSequenceByCategory(photo.getCategory());
+        int nextSequence = (maxSeq == null) ? 0 : maxSeq + 1;
+        photo.setSequence(nextSequence);
+
         photoRepository.save(photo);
     }
 
@@ -137,4 +141,15 @@ public class AdminPhotoService {
         // DB에서 삭제
         photoRepository.delete(photo);
     }
+
+    public void updatePhotoOrder(List<Long> photoIds) {
+        for (int i = 0; i < photoIds.size(); i++) {
+            Long id = photoIds.get(i);
+            Photo photo = photoRepository.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+            photo.setSequence(i); // 리스트 인덱스를 순서 값으로 저장
+            photoRepository.save(photo);
+        }
+    }
+
 }
