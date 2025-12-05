@@ -105,7 +105,6 @@ public class ImageMigrationService {
         photo.setImageUrl(newUrl);
         photoRepository.save(photo);
 
-        // 5. 원본 삭제 (선택 사항: 용량이 부족하면 주석 해제하여 사용)
-        // storage.delete(bucketName, oldName);
+        storage.delete(bucketName, oldName);
     }
 }
