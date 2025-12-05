@@ -40,8 +40,8 @@ dependencies {
 	implementation "com.google.cloud.sql:mysql-socket-factory-connector-j-8:1.25.3"
 	implementation "com.google.cloud.sql:jdbc-socket-factory-core:1.25.3"
 	implementation 'net.coobird:thumbnailator:0.4.20'
-	implementation 'com.twelvemonkeys.imageio:imageio-webp:3.10.1'
-	implementation 'com.twelvemonkeys.imageio:imageio-core:3.10.1'
+	implementation 'net.coobird:thumbnailator:0.4.20'
+	implementation 'org.sejda.imageio:webp-imageio:0.1.6'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j:9.1.0'
 	annotationProcessor 'org.projectlombok:lombok'
