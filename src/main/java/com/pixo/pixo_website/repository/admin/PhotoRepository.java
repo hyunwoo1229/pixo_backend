@@ -5,6 +5,7 @@ import com.pixo.pixo_website.domain.admin.PhotoCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,5 +22,11 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
     List<Photo> findByCategoryOrderBySequenceDesc(PhotoCategory category);
 
     Optional<Photo> findFirstByCategoryOrderBySequenceDesc(PhotoCategory category);
+
+    List<Photo> findBySavedFileNameNotLike(String pattern, Pageable pageable);
+    long countBySavedFileNameNotLike(String pattern);
+
+    List<Photo> findByCategoryAndSavedFileNameNotLike(PhotoCategory category, String pattern, Pageable pageable);
+    long countByCategoryAndSavedFileNameNotLike(PhotoCategory category, String pattern);
 
 }

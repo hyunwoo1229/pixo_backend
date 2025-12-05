@@ -3,6 +3,7 @@ package com.pixo.pixo_website.controller.admin;
 import com.pixo.pixo_website.dto.SuccessResponse;
 import com.pixo.pixo_website.dto.admin.PhotoRequestDto;
 import com.pixo.pixo_website.service.admin.AdminPhotoService;
+import com.pixo.pixo_website.service.admin.ImageMigrationService;
 import com.pixo.pixo_website.service.admin.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -57,4 +58,16 @@ public class AdminPhotoController {
         adminPhotoService.updatePhotoOrder(photoIds);
     }
 
+
+
+    private final ImageMigrationService imageMigrationService;
+
+    @PostMapping("/compress-batch")
+    public ResponseEntity<String> compressBatch(
+            @RequestParam(required = false) String category, // 특정 카테고리만 할 때
+            @RequestParam(defaultValue = "10") int size      // 한 번에 몇 장 할지
+    ) {
+        String result = imageMigrationService.compressNextBatch(category, size);
+        return ResponseEntity.ok(result);
+    }
 }
