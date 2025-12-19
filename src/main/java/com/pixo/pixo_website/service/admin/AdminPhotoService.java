@@ -6,6 +6,7 @@ import com.pixo.pixo_website.domain.admin.PhotoCategory;
 import com.pixo.pixo_website.dto.admin.PhotoRequestDto;
 import com.pixo.pixo_website.repository.admin.PhotoRepository;
 import io.awspring.cloud.s3.S3Template;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -90,6 +91,23 @@ public class AdminPhotoService {
         }
 
         photoRepository.delete(photo);
+    }
+
+    // 사진 순서 변경 로직
+    @Transactional
+    public void updatePhotoOrder(List<Long> photoIds) {
+        int size = photoIds.size();
+
+        for (int i = 0; i < size; i++) {
+            Long id = photoIds.get(i);
+            Photo photo = photoRepository.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사진을 찾을 수 없습니다."));
+
+            // 순서를 역순 혹은 정순으로 설정 (기존 로직에 맞게 조정)
+            photo.setSequence(size - 1 - i);
+
+            photoRepository.save(photo);
+        }
     }
 
     /*public Photo uploadPhoto(PhotoRequestDto dto) {
