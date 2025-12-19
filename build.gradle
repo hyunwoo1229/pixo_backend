@@ -42,6 +42,7 @@ dependencies {
 	implementation 'net.coobird:thumbnailator:0.4.20'
 	implementation 'net.coobird:thumbnailator:0.4.20'
 	implementation 'org.sejda.imageio:webp-imageio:0.1.6'
+	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.0.1'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j:9.1.0'
 	annotationProcessor 'org.projectlombok:lombok'
