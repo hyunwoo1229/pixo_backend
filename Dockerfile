@@ -1,13 +1,14 @@
-# 1. Base Image 선택
+# 1단계: 빌드 스테이지 (소스 코드를 JAR 파일로 변환)
+FROM eclipse-temurin:21-jdk-alpine AS builder
+WORKDIR /app
+COPY . .
+# 실행 권한 부여 및 빌드 (테스트는 시간 절약을 위해 제외)
+RUN chmod +x ./gradlew && ./gradlew clean build -x test
+
+# 2단계: 실행 스테이지 (실제 서버 운영)
 FROM eclipse-temurin:21-jre-alpine
-
-# 2. JAR 파일 이름을 변수로 정의
-ARG JAR_FILE="pixo-website-0.0.1-SNAPSHOT.jar"
-
-# 3. JAR 파일을 Cloud Build 환경 안으로 복사
-# ⚠️ 핵심 수정: build/libs 폴더 전체를 복사하는 대신, build 폴더의 내용 전체를 복사합니다.
-# 이렇게 하면 build/libs/ 에 있는 JAR 파일이 컨테이너의 루트에 복사됩니다.
-COPY build/libs/${JAR_FILE} /app.jar
-
-# 4. 엔트리 포인트 설정
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+WORKDIR /app
+# 1단계(builder)에서 생성된 JAR 파일만 가져옴
+COPY --from=builder /app/build/libs/*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
