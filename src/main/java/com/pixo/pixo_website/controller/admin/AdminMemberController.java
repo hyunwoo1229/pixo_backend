@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/member")
+@RequestMapping("/api/admin/members")
 @RequiredArgsConstructor
 public class AdminMemberController {
     private final AdminMemberService adminMemberService;
@@ -20,7 +20,7 @@ public class AdminMemberController {
         return ResponseEntity.ok(adminMemberService.getAllMembers());
     }
 
-    @PutMapping("/{memberId}/role")
+    @PatchMapping("/{memberId}/role")
     public ResponseEntity<String> updateMemberRole(
             @PathVariable Long memberId,
             @RequestParam Role role
