@@ -1,5 +1,6 @@
 package com.pixo.pixo_website.service;
 
+import jakarta.transaction.Transactional;
 import net.nurigo.sdk.message.exception.NurigoMessageNotReceivedException;
 import net.nurigo.sdk.message.model.Message;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,8 @@ public class SmsService {
             this.issuedAt = issuedAt;
         }
     }
+
+    @Transactional
     public void sendVerificationCode(String phoneNumber) {
         LocalDateTime lastRequestTime = requestTimestamps.get(phoneNumber);
 
@@ -80,6 +83,7 @@ public class SmsService {
         }
     }
 
+    @Transactional
     public boolean verifyCode(String phoneNumber, String inputCode) {
         VerificationInfo info = verificationCodes.get(phoneNumber);
         if (info == null) return false;

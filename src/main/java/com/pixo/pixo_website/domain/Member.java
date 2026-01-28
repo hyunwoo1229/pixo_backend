@@ -36,4 +36,20 @@ public class Member {
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
+
+
+    public void withdraw() {
+        this.status = MemberStatus.DELETED;
+        this.deletedAt = LocalDateTime.now();
+        this.password = null;
+        this.refreshToken = null;
+        this.phoneNumber = null;
+    }
+
+    public String getMaskedLoginId() {
+        if (this.loginId.length() > 4) {
+            return this.loginId.substring(0, this.loginId.length() - 2) + "****";
+        }
+        return this.loginId;
+    }
 }

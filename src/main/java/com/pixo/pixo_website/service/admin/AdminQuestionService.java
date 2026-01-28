@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +20,7 @@ public class AdminQuestionService {
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
 
+    @Transactional
     public void updateQuestion(Long questionId, QuestionRequestDto dto) {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -30,57 +30,36 @@ public class AdminQuestionService {
     }
 
 
+    @Transactional
     public void deleteQuestion(Long questionId) {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         questionRepository.delete(question);
     }
 
+    @Transactional
     public void writeAnswer(Long questionId, AnswerRequestDto dto) {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        Answer answer = new Answer();
-        answer.setContent(dto.getContent());
-        answer.setQuestion(question);
-        answerRepository.save(answer);
-
-        question.setAnswered(true);
-        questionRepository.save(question);
-    }
-
-    public void updateAnswer(Long answerId, AnswerRequestDto dto) {
-        Answer answer = answerRepository.findById(answerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        answer.setContent(dto.getContent());
-        answer.setUpdatedAt(LocalDateTime.now());
+        Answer answer = Answer.create(dto.getContent(), question);
+        question.addAnswer(answer);
         answerRepository.save(answer);
     }
 
     @Transactional
-    public void deleteAnswer(Long answerId) {
-       /* Answer answer = answerRepository.findById(answerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        Question question = answer.getQuestion();
-        question.setAnswer(null);
-        question.setAnswered(false);
-        questionRepository.save(question);
-        answerRepository.delete(answer);
-
-        */
-        // 1. 삭제할 답변을 찾습니다.
+    public void updateAnswer(Long answerId, AnswerRequestDto dto) {
         Answer answer = answerRepository.findById(answerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "답변을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        answer.update(dto.getContent());
+    }
 
-        // 2. 답변을 통해 부모인 질문을 찾습니다.
+    @Transactional
+    public void deleteAnswer(Long answerId) {
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
         Question question = answer.getQuestion();
-
-        // 3. 질문의 답변 상태를 변경합니다.
-        question.setAnswered(false);
-
-        // 4. 질문과 답변의 연결을 끊습니다.
-        // 이 코드가 실행되고 트랜잭션이 끝나면, orphanRemoval=true 설정 때문에
-        // JPA가 자동으로 Answer 데이터를 DELETE 합니다.
-        question.setAnswer(null);
+        question.removeAnswer();
     }
 }

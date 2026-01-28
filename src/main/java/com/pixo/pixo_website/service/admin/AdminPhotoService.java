@@ -43,6 +43,7 @@ public class AdminPhotoService {
     private String region;
 
     // 1. 업로드용 Presigned URL 생성 (GCS의 generateSignedUrl 대체)
+    @Transactional
     public Map<String, String> generateSignedUrl(String fileName, String contentType) {
         // 고유한 파일명 생성 (GCS 로직 유지)
         String objectKey = "photos/" + UUID.randomUUID() + "_" + fileName;
@@ -58,6 +59,7 @@ public class AdminPhotoService {
     }
 
     // 2. DB 메타데이터 저장 (S3 URL 체계 적용)
+    @Transactional
     public void savePhotoMetadata(PhotoRequestDto dto) {
         // AWS S3 표준 URL 구성
         String publicUrl = String.format("https://%s.s3.%s.amazonaws.com/%s",
@@ -77,6 +79,7 @@ public class AdminPhotoService {
     }
 
     // 3. 사진 삭제 (S3 객체 삭제)
+    @Transactional
     public void deletePhoto(Long photoId) {
         Photo photo = photoRepository.findById(photoId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));

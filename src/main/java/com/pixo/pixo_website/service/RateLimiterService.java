@@ -1,5 +1,6 @@
 package com.pixo.pixo_website.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -13,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RateLimiterService {
     private final Map<String, LocalDateTime> requestTimestamps = new ConcurrentHashMap<>();
 
+    @Transactional
     public void check(String key, Duration cooldown) {
         LocalDateTime lastRequestTime = requestTimestamps.get(key);
         if (lastRequestTime != null && Duration.between(lastRequestTime, LocalDateTime.now()).compareTo(cooldown) < 0) {

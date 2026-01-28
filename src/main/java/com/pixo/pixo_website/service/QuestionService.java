@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -23,6 +22,7 @@ public class QuestionService {
     private final MailService mailService;
     private final RateLimiterService rateLimiterService;
 
+    @Transactional
     public void createQuestion(QuestionRequestDto dto, Member member) {
         String rateLimitKey = member.getLoginId() + "_CREATE_QUESTION";
         rateLimiterService.check(rateLimitKey, Duration.ofMinutes(5));
@@ -66,10 +66,8 @@ public class QuestionService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인이 작성한 문의글만 수정할 수 있습니다.");
         }
 
-        question.setTitle(dto.getTitle());
-        question.setContent(dto.getContent());
-        question.setUpdatedAt(LocalDateTime.now());
-        questionRepository.save(question);
+        question.validateOwner(member.getId());
+        question.update(dto.getTitle(), dto.getContent());
     }
 
     @Transactional

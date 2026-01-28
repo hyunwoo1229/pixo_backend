@@ -23,8 +23,6 @@ public class SchedulerService {
     @Scheduled(cron = "0 0 4 * * *")
     @Transactional
     public void anonymizeExpiredMembers() {
-        log.info("Start anonymizing expired member data...");
-
         //법적 보관 기간 (5년)이 만료된 탈퇴 회원 조회
         LocalDateTime fiveYearsAgo = LocalDateTime.now().minusYears(5);
         List<Member> expiredMembers = memberRepository.findByStatusAndDeletedAtBefore(MemberStatus.DELETED,fiveYearsAgo);

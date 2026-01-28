@@ -39,18 +39,8 @@ public class ReservationService {
         Member member = memberRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 회원을 찾을 수 없습니다."));
 
-        Reservation reservation = new Reservation();
-        reservation.setMember(member);
-        reservation.setShootType(dto.getShootType());
-        reservation.setDate(dto.getDate());
-        reservation.setTime(dto.getTime());
-        reservation.setLocation(dto.getLocation());
-        reservation.setNotes(dto.getNotes());
-        reservation.setReservationCode(generateReservationCode());
-        reservation.setDesiredShootDate(dto.getDesiredShootDate());
-
+        Reservation reservation = Reservation.create(member, dto);
         Reservation saved = reservationRepository.save(reservation);
-
 
         // 이메일 내용 구성
         String subject = "[PIXO] 새 예약 알림";
@@ -84,13 +74,6 @@ public class ReservationService {
         return reservationRepository.findByMemberId(member.getId()).stream()
                 .map(ReservationResponseDto::new)
                 .toList();
-    }
-
-    private String generateReservationCode() {
-        // 예: 20250804AB12CD
-        String datePart = LocalDate.now().toString().replace("-", ""); // YYYYMMDD
-        String randomPart = java.util.UUID.randomUUID().toString().replaceAll("-", "").substring(0, 6).toUpperCase();
-        return datePart + randomPart;
     }
 
     @Transactional(readOnly = true)

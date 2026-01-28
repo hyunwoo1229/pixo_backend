@@ -5,6 +5,7 @@ import com.pixo.pixo_website.domain.admin.PhotoCategory;
 import com.pixo.pixo_website.dto.admin.CategoryDetailResponseDto;
 import com.pixo.pixo_website.dto.admin.PhotoResponseDto;
 import com.pixo.pixo_website.repository.admin.PhotoRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class PhotoService {
 
     private final PhotoRepository photoRepository;
 
+    @Transactional
     public List<PhotoResponseDto> getPhotosByCategory(String category) {
         // 1) String -> Enum 변환(잘못된 값이면 400)
         final PhotoCategory cat;

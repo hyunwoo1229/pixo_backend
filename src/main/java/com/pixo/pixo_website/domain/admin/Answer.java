@@ -23,4 +23,17 @@ public class Answer {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id")
     private Question question;
+
+    public static Answer create(String content, Question question) {
+        Answer answer = new Answer();
+        answer.content = content;
+        answer.question = question;
+        return answer;
+    }
+
+    public void update(String content) {
+        this.content = content;
+        this.updatedAt = LocalDateTime.now();
+    }
+
 }

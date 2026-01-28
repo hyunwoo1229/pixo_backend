@@ -22,7 +22,9 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final SmsService smsService;
+
     //회원가입
+    @Transactional
     public ResponseEntity<?> register(MemberRequestDto dto) {
         // 아이디 길이 검증 (4~20자)
         if (dto.getLoginId().length() < 4 || dto.getLoginId().length() > 20) {
@@ -70,6 +72,7 @@ public class MemberService {
     }
 
     //소셜 로그인 후 추가 정보 저장
+    @Transactional
     public void updateExtra(MemberRequestDto dto, Authentication authentication) {
         if (authentication == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "토큰 없음");
@@ -128,17 +131,12 @@ public class MemberService {
     //회원 탈퇴
     @Transactional
     public void deleteMember(Member member) {
-        member.setStatus(MemberStatus.DELETED);
-        member.setDeletedAt(LocalDateTime.now());
-
-        member.setPassword(null);
-        member.setRefreshToken(null);
-        member.setPhoneNumber(null);
-
+        member.withdraw();
         memberRepository.save(member);
     }
 
     //아이디 찾기 인증번호 발송
+    @Transactional
     public void sendCodeForId(String name, String phoneNumber) {
         memberRepository.findByNameAndPhoneNumber(name, phoneNumber)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일치하는 회원 정보가 없습니다."));
@@ -156,15 +154,11 @@ public class MemberService {
         Member member = memberRepository.findByNameAndPhoneNumber(name, phoneNumber)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일치하는 회원 정보가 없습니다."));
 
-        //보안을 위해 아이디 일부를 마스킹 처리해서 반환
-        String loginId = member.getLoginId();
-        if (loginId.length() > 4) {
-            return loginId.substring(0, loginId.length() - 2) + "****";
-        }
-        return loginId;
+        return member.getMaskedLoginId();
     }
 
     //비밀번호 재설정용 인증번호 발송
+    @Transactional
     public void sendCodeForPassword(String loginId, String name, String phoneNumber) {
         memberRepository.findByLoginIdAndNameAndPhoneNumber(loginId, name, phoneNumber)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일치하는 회원 정보가 없습니다."));
@@ -194,6 +188,7 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+    @Transactional
     public SuccessResponse checkDuplicatedPhoneNumber(String phoneNumber) {
         if(memberRepository.findByPhoneNumber(phoneNumber).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 가입된 전화번호입니다.");

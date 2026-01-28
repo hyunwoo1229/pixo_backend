@@ -75,6 +75,7 @@ public class ImageMigrationService {
                 targetName, success, fail, remainCount);
     }
 
+
     private void processSinglePhoto(Photo photo) throws Exception {
         String oldName = photo.getSavedFileName();
 
