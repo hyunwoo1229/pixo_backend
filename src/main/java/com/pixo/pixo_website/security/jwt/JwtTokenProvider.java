@@ -16,7 +16,7 @@ public class JwtTokenProvider {
 
     @Value("${keySecret}")
     private String keySecret;
-    private final long ACCESS_TOKEN_EXPIRATION_MS = 36000000L;
+    private final long ACCESS_TOKEN_EXPIRATION_MS = 3600000L;
     private final long REFRESH_TOKEN_EXPIRATION_MS = 1209600000L; // 2주
     private Key key;
 
