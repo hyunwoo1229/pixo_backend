@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/reservation")
+@RequestMapping("/api/admin/reservations")
 @RequiredArgsConstructor
 
 public class AdminReservationController {
@@ -24,16 +24,18 @@ public class AdminReservationController {
         return ResponseEntity.ok(adminReservationService.getAllReservations());
     }
 
-    // 이름으로 검색
-    @GetMapping("/search/name")
-    public ResponseEntity<List<ReservationResponseDto>> searchByMemberName(@RequestParam String name) {
-        return ResponseEntity.ok(adminReservationService.searchByMemberName(name));
-    }
+    //예약 검색
+    @GetMapping("/search")
+    public ResponseEntity<List<ReservationResponseDto>> searchReservations(
+            @RequestParam String type,
+            @RequestParam String keyword) {
 
-    // 예약번호로 검색
-    @GetMapping("/search/code")
-    public ResponseEntity<List<ReservationResponseDto>> searchByReservationCode(@RequestParam String code) {
-        return ResponseEntity.ok(adminReservationService.searchByReservationCode(code));
+        if ("name".equals(type)) {
+            return ResponseEntity.ok(adminReservationService.searchByMemberName(keyword));
+        } else if ("code".equals(type)) {
+            return ResponseEntity.ok(adminReservationService.searchByReservationCode(keyword));
+        }
+        return ResponseEntity.ok(adminReservationService.getAllReservations());
     }
 
     @GetMapping("/blocked-times")
@@ -41,13 +43,13 @@ public class AdminReservationController {
         return ResponseEntity.ok(adminReservationService.getAdminBlockedTimes(date));
     }
 
-    @PostMapping("/block-time")
+    @PostMapping("/block-times")
     public ResponseEntity<SuccessResponse> blockTime(@RequestBody BlockTimeRequestDto dto) {
         adminReservationService.blockTime(dto.getDate(), dto.getTimeSlot());
         return ResponseEntity.ok(new SuccessResponse("해당 시간이 예약 불가 처리되었습니다."));
     }
 
-    @DeleteMapping("/block-time")
+    @DeleteMapping("/block-times")
     public ResponseEntity<SuccessResponse> unblockTime(@RequestBody BlockTimeRequestDto dto) {
         adminReservationService.unblockTime(dto.getDate(), dto.getTimeSlot());
         return ResponseEntity.ok(new SuccessResponse("해당 시간이 다시 예약 가능 처리되었습니다."));
