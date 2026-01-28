@@ -9,6 +9,7 @@ import com.pixo.pixo_website.repository.MemberRepository;
 import com.pixo.pixo_website.security.CumstomUserDetails;
 import com.pixo.pixo_website.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -28,8 +29,9 @@ public class MemberController {
 
     //회원가입
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody MemberRequestDto dto) {
-        return memberService.register(dto);
+    public ResponseEntity<SuccessResponse> register(@RequestBody MemberRequestDto dto) {
+        memberService.register(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new SuccessResponse("회원가입 성공"));
     }
 
     //소셜 로그인 후 추가 정보 저장
@@ -48,8 +50,9 @@ public class MemberController {
 
     //비밀번호 변경
     @PutMapping("/profile/password")
-    public ResponseEntity<?> updatePassword(@RequestBody ChangePasswordRequest req, Authentication authentication) {
-        return memberService.changePassword(req, authentication);
+    public ResponseEntity<SuccessResponse> updatePassword(@RequestBody ChangePasswordRequest req, Authentication authentication) {
+        memberService.changePassword(req, authentication);
+        return ResponseEntity.ok(new SuccessResponse("비밀번호가 변경되었습니다."));
     }
 
     //아이디 중복 확인

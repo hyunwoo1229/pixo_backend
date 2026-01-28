@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,34 +31,21 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public ResponseEntity<?> login(MemberRequestDto dto) {
-        Optional<Member> optionalMember = memberRepository.findByLoginId(dto.getLoginId());
-
-        if (optionalMember.isEmpty()) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse("존재하지 않는 아이디입니다"));
-        }
-
-        Member member = optionalMember.get();
+    public Map<String, Object> login(MemberRequestDto dto) {
+        Member member = memberRepository.findByLoginId(dto.getLoginId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 아이디입니다"));
 
         if (member.getStatus() == MemberStatus.DELETED) {
-            return ResponseEntity
-                    .status(HttpStatus.FORBIDDEN)
-                    .body(new ErrorResponse("이미 탈퇴 처리된 계정입니다."));
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "이미 탈퇴 처리된 계정입니다.");
         }
 
         if (!passwordEncoder.matches(dto.getPassword(), member.getPassword())) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponse("비밀번호가 틀렸습니다"));
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호가 틀렸습니다");
         }
 
-        //토큰 생성
         String accessToken = jwtTokenProvider.createAccessToken(member.getLoginId(), member.getId());
         String refreshToken = jwtTokenProvider.createRefreshToken(member.getLoginId(), member.getId());
 
-        // DB에 Refresh Token 저장
         member.updateRefreshToken(refreshToken);
         memberRepository.save(member);
 
@@ -67,48 +55,37 @@ public class AuthService {
         result.put("name", member.getName());
         result.put("role", member.getRole().name());
 
-        return ResponseEntity.ok(result);
+        return result;
     }
 
     @Transactional
-    public ResponseEntity<?> logout(HttpServletRequest request) {
+    public void logout(HttpServletRequest request) {
         String token = jwtTokenProvider.resolveToken(request);
         if (token != null) {
             try {
-                String loginId = jwtTokenProvider.getLoginId(token); // 이 부분에서 예외 발생 가능
+                String loginId = jwtTokenProvider.getLoginId(token);
                 memberRepository.findByLoginId(loginId).ifPresent(member -> {
-                    member.updateRefreshToken(null); // DB에서 Refresh Token 제거
-                    memberRepository.save(member);
-                    log.info("Successfully logged out and cleared refresh token for user: {}", loginId);
+                    member.updateRefreshToken(null);
                 });
-            } catch (io.jsonwebtoken.ExpiredJwtException e) {
-                log.info("Logout request with an expired access token. Proceeding as normal logout.");
+            } catch (Exception e) {
+                // 로그아웃 시 토큰 만료 등은 무시
             }
         }
-        return ResponseEntity.ok(new SuccessResponse("로그아웃 완료"));
     }
 
     @Transactional
-    public ResponseEntity<?> reissue(String refreshToken) {
-        // 1. Refresh Token 유효성 검증
+    public TokenResponseDto reissue(String refreshToken) {
         if (refreshToken == null || !jwtTokenProvider.validateToken(refreshToken)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse("유효하지 않은 Refresh Token 입니다."));
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 Refresh Token 입니다.");
         }
 
-        // 2. DB에서 토큰을 찾아보고, 없을 경우 401 에러를 명시적으로 반환
-        Optional<Member> memberOptional = memberRepository.findByRefreshToken(refreshToken);
-        if (memberOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse("제공된 Refresh Token과 일치하는 사용자가 없습니다."));
-        }
-        Member member = memberOptional.get();
+        Member member = memberRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "일치하는 사용자가 없습니다."));
 
-        // 3. 새로운 토큰 생성 (Access Token + Refresh Token 둘 다)
         String newAccessToken = jwtTokenProvider.createAccessToken(member.getLoginId(), member.getId());
         String newRefreshToken = jwtTokenProvider.createRefreshToken(member.getLoginId(), member.getId());
 
-        // 4. DB에 새로운 Refresh Token 업데이트 (Refresh Token Rotation)
         member.updateRefreshToken(newRefreshToken);
-
-        return ResponseEntity.ok(new TokenResponseDto(newAccessToken, newRefreshToken));
+        return new TokenResponseDto(newAccessToken, newRefreshToken);
     }
 }

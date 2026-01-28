@@ -1,7 +1,6 @@
 package com.pixo.pixo_website.service;
 
 import com.pixo.pixo_website.domain.Member;
-import com.pixo.pixo_website.domain.MemberStatus;
 import com.pixo.pixo_website.dto.*;
 import com.pixo.pixo_website.repository.MemberRepository;
 import jakarta.transaction.Transactional;
@@ -13,8 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
-
 @Service
 @RequiredArgsConstructor
 
@@ -25,37 +22,25 @@ public class MemberService {
 
     //회원가입
     @Transactional
-    public ResponseEntity<?> register(MemberRequestDto dto) {
-        // 아이디 길이 검증 (4~20자)
+    public void register(MemberRequestDto dto) {
         if (dto.getLoginId().length() < 4 || dto.getLoginId().length() > 20) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse("아이디는 4자 이상 20자 이하로 입력해주세요."));
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "아이디는 4자 이상 20자 이하로 입력해주세요.");
         }
-        // 비밀번호 길이 검증 (8~16자)
         if (dto.getPassword().length() < 8 || dto.getPassword().length() > 16) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse("비밀번호는 8자 이상 16자 이하로 입력해주세요."));
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호는 8자 이상 16자 이하로 입력해주세요.");
         }
 
         if (memberRepository.findByLoginId(dto.getLoginId()).isPresent()) {
-            return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
-                    .body(new ErrorResponse("이미 존재하는 아이디입니다"));
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 존재하는 아이디입니다");
         }
 
         if(memberRepository.findByPhoneNumber(dto.getPhoneNumber()).isPresent()) {
-            return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
-                    .body(new ErrorResponse("이미 가입된 전화번호입니다."));
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 가입된 전화번호입니다.");
         }
 
         boolean verified = smsService.verifyCode(dto.getPhoneNumber(), dto.getCode());
         if (!verified) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse("인증번호가 일치하지 않습니다."));
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "인증번호가 일치하지 않습니다.");
         }
 
         Member member = new Member();
@@ -65,10 +50,6 @@ public class MemberService {
         member.setPhoneNumber(dto.getPhoneNumber());
         member.setProvider("form");
         memberRepository.save(member);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(new SuccessResponse("회원가입 성공"));
     }
 
     //소셜 로그인 후 추가 정보 저장
@@ -96,24 +77,22 @@ public class MemberService {
 
     //비밀번호 변경
     @Transactional
-    public ResponseEntity<?> changePassword(ChangePasswordRequest req, Authentication auth) {
+    public void changePassword(ChangePasswordRequest req, Authentication auth) {
         String loginId = auth.getName();
         Member member = memberRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 사용자입니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유효하지 않은 사용자입니다."));
 
         if(!passwordEncoder.matches(req.getOldPassword(), member.getPassword())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("현재 비밀번호가 일치하지 않습니다."));
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "현재 비밀번호가 일치하지 않습니다.");
         }
 
         String newPassword = req.getNewPassword();
         if(newPassword.length() < 8 || newPassword.length() > 16) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("비밀번호는 8자 이상 16자 이하로 입력해주세요."));
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호는 8자 이상 16자 이하로 입력해주세요.");
         }
 
         member.setPassword(passwordEncoder.encode(req.getNewPassword()));
         memberRepository.save(member);
-
-        return ResponseEntity.ok(new SuccessResponse("비밀번호가 변경되었습니다."));
     }
 
     //아이디 중복 확인
