@@ -9,14 +9,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/admin/question")
+@RequestMapping("/api/admin/questions")
 @RequiredArgsConstructor
 public class AdminQuestionController {
 
     private final AdminQuestionService adminQuestionService;
 
     // 문의글 수정
-    @PutMapping("/{questionId}")
+    @PatchMapping("/{questionId}")
     public ResponseEntity<?> updateQuestion(@PathVariable Long questionId,
                                             @RequestBody QuestionRequestDto dto) {
         adminQuestionService.updateQuestion(questionId, dto);
@@ -31,7 +31,7 @@ public class AdminQuestionController {
     }
 
     // 답변 등록
-    @PostMapping("/{questionId}/answer")
+    @PostMapping("/{questionId}/answers")
     public ResponseEntity<?> writeAnswer(@PathVariable Long questionId,
                                          @RequestBody AnswerRequestDto dto) {
         adminQuestionService.writeAnswer(questionId, dto);
@@ -39,7 +39,7 @@ public class AdminQuestionController {
     }
 
     // 답변 수정
-    @PutMapping("/answer/{answerId}")
+    @PatchMapping("/answer/{answerId}")
     public ResponseEntity<?> updateAnswer(@PathVariable Long answerId,
                                           @RequestBody AnswerRequestDto dto) {
         adminQuestionService.updateAnswer(answerId, dto);
