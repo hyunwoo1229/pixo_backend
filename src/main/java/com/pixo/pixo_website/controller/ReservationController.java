@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/reservation")
+@RequestMapping("/api/reservations")
 @RequiredArgsConstructor
 
 public class ReservationController {
@@ -29,11 +29,8 @@ public class ReservationController {
     }
 
     //내 예약 조회
-    @GetMapping("/my")
+    @GetMapping("/me")
     public ResponseEntity<List<ReservationResponseDto>> getMyReservations(Authentication authentication) {
-        if (authentication == null) {
-            return ResponseEntity.status(401).build(); // 인증 정보가 없으면 401 반환
-        }
         String loginId = authentication.getName(); // 현재 로그인한 사용자의 loginId
         List<ReservationResponseDto> reservations = reservationService.getReservationsByLoginId(loginId);
         return ResponseEntity.ok(reservations);
