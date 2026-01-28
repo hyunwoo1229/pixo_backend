@@ -39,7 +39,7 @@ public class AdminQuestionController {
     }
 
     // 답변 수정
-    @PatchMapping("/answer/{answerId}")
+    @PatchMapping("/answers/{answerId}")
     public ResponseEntity<?> updateAnswer(@PathVariable Long answerId,
                                           @RequestBody AnswerRequestDto dto) {
         adminQuestionService.updateAnswer(answerId, dto);
@@ -47,7 +47,7 @@ public class AdminQuestionController {
     }
 
     // 답변 삭제
-    @DeleteMapping("/answer/{answerId}")
+    @DeleteMapping("/answers/{answerId}")
     public ResponseEntity<?> deleteAnswer(@PathVariable Long answerId) {
         adminQuestionService.deleteAnswer(answerId);
         return ResponseEntity.ok(new SuccessResponse("답변이 삭제되었습니다."));
