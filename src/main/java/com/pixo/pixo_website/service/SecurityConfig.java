@@ -41,11 +41,11 @@ public class SecurityConfig {
                 // CORS 설정을 명시적으로 지정합니다.
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/question").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/question/my").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/questions").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/questions/me").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/question/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/question/**").authenticated()
-                        .requestMatchers("/api/reservation/**").authenticated()
+                        .requestMatchers("/api/reservations/**").authenticated()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
@@ -70,7 +70,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         //configuration.setAllowedOrigins(List.of("http://localhost:5173", "https://29c78b5b87c1.ngrok-free.app"));
         configuration.setAllowedOrigins(List.of("https://pixo-frontend.vercel.app", "https://pixo-frontend-git-frontendtest-hynoo20011229-4982s-projects.vercel.app", "https://pixostudio.shop", "https://www.pixostudio.shop"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-requested-with"));
         configuration.setAllowCredentials(true);
         configuration.setExposedHeaders(List.of("Authorization"));
