@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/question")
+@RequestMapping("/api/questions")
 @RequiredArgsConstructor
 
 public class QuestionController {
@@ -30,7 +30,7 @@ public class QuestionController {
     }
 
     //내 문의 목록 조회
-    @GetMapping("/my")
+    @GetMapping("/me")
     public ResponseEntity<List<QuestionResponseDto>> getMyQuestions(@AuthenticationPrincipal CumstomUserDetails userDetails) {
         Member member = userDetails.getMember();
         return ResponseEntity.ok(questionService.getMyQuestions(member));
@@ -43,34 +43,31 @@ public class QuestionController {
     }
 
     //문의 수정
-    @PutMapping("/{questionId}")
-    public ResponseEntity<?> updateQuestion(@PathVariable Long questionId,
-                                            @RequestBody QuestionRequestDto dto,
-                                            @AuthenticationPrincipal CumstomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        questionService.updateQuestion(questionId, dto, member);
+    @PatchMapping("/{id}")
+    public ResponseEntity<SuccessResponse> updateQuestion(@PathVariable Long id,
+                                                          @RequestBody QuestionRequestDto dto,
+                                                          @AuthenticationPrincipal CumstomUserDetails userDetails) {
+        questionService.updateQuestion(id, dto, userDetails.getMember());
         return ResponseEntity.ok(new SuccessResponse("문의가 수정되었습니다."));
     }
 
     //문의 삭제
-    @DeleteMapping("/{questionId}")
-    public ResponseEntity<?> deleteQuestion(@PathVariable Long questionId,
+    @DeleteMapping("/{id}")
+    public ResponseEntity<SuccessResponse> deleteQuestion(@PathVariable Long id,
                                             @AuthenticationPrincipal CumstomUserDetails userDetails) {
-        Member member = userDetails.getMember();
-        questionService.deleteQuestion(questionId, member);
+        questionService.deleteQuestion(id, userDetails.getMember());
         return ResponseEntity.ok(new SuccessResponse("문의가 삭제되었습니다."));
     }
 
-    // 제목으로 검색
-    @GetMapping("/search/title")
-    public ResponseEntity<List<QuestionResponseDto>> searchByTitle(@RequestParam String keyword) {
+    //문의 검색
+    @GetMapping("/search")
+    public ResponseEntity<List<QuestionResponseDto>> searchQuestions(
+            @RequestParam String type,
+            @RequestParam String keyword) {
+        if ("content".equals(type)) {
+            return ResponseEntity.ok(questionService.searchByContent(keyword));
+        }
         return ResponseEntity.ok(questionService.searchByTitle(keyword));
-    }
-
-    // 내용으로 검색
-    @GetMapping("/search/content")
-    public ResponseEntity<List<QuestionResponseDto>> searchByContent(@RequestParam String keyword) {
-        return ResponseEntity.ok(questionService.searchByContent(keyword));
     }
 
 }
