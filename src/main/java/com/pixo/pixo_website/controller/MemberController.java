@@ -5,7 +5,6 @@ import com.pixo.pixo_website.dto.ChangePasswordRequest;
 import com.pixo.pixo_website.dto.MemberInfoResponse;
 import com.pixo.pixo_website.dto.MemberRequestDto;
 import com.pixo.pixo_website.dto.SuccessResponse;
-import com.pixo.pixo_website.repository.MemberRepository;
 import com.pixo.pixo_website.security.CumstomUserDetails;
 import com.pixo.pixo_website.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -19,37 +18,36 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/member")
+@RequestMapping("/api/members")
 @RequiredArgsConstructor
 
 public class MemberController {
 
     private final MemberService memberService;
-    private final MemberRepository memberRepository;
 
     //회원가입
-    @PostMapping("/register")
+    @PostMapping
     public ResponseEntity<SuccessResponse> register(@RequestBody MemberRequestDto dto) {
         memberService.register(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(new SuccessResponse("회원가입 성공"));
     }
 
     //소셜 로그인 후 추가 정보 저장
-    @PostMapping("/update-extra")
+    @PatchMapping("/me/extra")
     public ResponseEntity<SuccessResponse> updateExtra(@RequestBody MemberRequestDto dto, Authentication authentication) {
         memberService.updateExtra(dto, authentication);
         return ResponseEntity.ok(new SuccessResponse("추가 정보 업데이트 완료"));
     }
 
     //인증 코드 전송
-    @PostMapping("/send-code")
+    @PostMapping("/verification-codes")
     public ResponseEntity<SuccessResponse> sendCode(@RequestParam String phoneNumber) {
         memberService.sendVerificationCode(phoneNumber);
         return ResponseEntity.ok(new SuccessResponse("인증번호가 전송되었습니다."));
     }
 
     //비밀번호 변경
-    @PutMapping("/profile/password")
+    @PatchMapping("/me/password")
     public ResponseEntity<SuccessResponse> updatePassword(@RequestBody ChangePasswordRequest req, Authentication authentication) {
         memberService.changePassword(req, authentication);
         return ResponseEntity.ok(new SuccessResponse("비밀번호가 변경되었습니다."));
@@ -62,7 +60,7 @@ public class MemberController {
     }
 
     //회원 탈퇴
-    @DeleteMapping
+    @DeleteMapping("/me")
     public ResponseEntity<SuccessResponse> deleteMember(@AuthenticationPrincipal CumstomUserDetails userDetails) {
         Member member = userDetails.getMember();
         memberService.deleteMember(member);
@@ -70,7 +68,7 @@ public class MemberController {
     }
 
     //아이디 찾기 인증 코드 전송
-    @PostMapping("find-id/send-code")
+    @PostMapping("find-id/verification-codes")
     public ResponseEntity<SuccessResponse> findIdSendCode(@RequestBody MemberRequestDto dto) {
         memberService.sendCodeForId(dto.getName(), dto.getPhoneNumber());
         return ResponseEntity.ok(new SuccessResponse("인증번호가 전송되었습니다."));
@@ -86,21 +84,21 @@ public class MemberController {
     }
 
     //비밀번호 찾기 인증 코드 전송
-    @PostMapping("find-pw/send-code")
+    @PostMapping("password/verification-codes")
     public ResponseEntity<SuccessResponse> findPwSendCode(@RequestBody MemberRequestDto dto) {
         memberService.sendCodeForPassword(dto.getLoginId(), dto.getName(), dto.getPhoneNumber());
         return ResponseEntity.ok(new SuccessResponse("인증번호가 전송되었습니다."));
     }
 
     //비밀번호 찾기 인증 코드 확인
-    @PostMapping("find-pw/verify-code")
+    @PostMapping("password/verify")
     public ResponseEntity<SuccessResponse> findPwVerifyCode(@RequestBody MemberRequestDto dto) {
         memberService.verifyCodeForPassword(dto.getLoginId(), dto.getName(), dto.getPhoneNumber(), dto.getCode());
         return ResponseEntity.ok(new SuccessResponse("인증에 성공했습니다. 새 비밀번호를 입력해주세요."));
     }
 
     //비밀번호 찾기 새 비밀번호 설정
-    @PutMapping("find-pw/reset")
+    @PatchMapping("password")
     public ResponseEntity<SuccessResponse> resetPassword(@RequestBody MemberRequestDto dto) {
         memberService.resetPassword(dto.getLoginId(), dto.getName(), dto.getPhoneNumber(), dto.getCode(), dto.getPassword());
         return ResponseEntity.ok(new SuccessResponse("비밀번호가 성공적으로 변경되었습니다."));
@@ -112,7 +110,8 @@ public class MemberController {
         return ResponseEntity.ok(memberService.checkDuplicatedPhoneNumber(phoneNumber));
     }
 
-    @GetMapping("/profile")
+    //내 프로필 조회
+    @GetMapping("/me")
     public ResponseEntity<MemberInfoResponse> getMemberProfile(Authentication authentication) {
         MemberInfoResponse response = memberService.getMemberInfoByAuthentication(authentication);
         return ResponseEntity.ok(response);
