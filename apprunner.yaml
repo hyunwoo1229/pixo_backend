@@ -2,9 +2,9 @@ version: 1.0
 runtime: corretto21
 build:
   commands:
+    pre_build:
+      - chmod +x ./gradlew
     build:
-      - ./gradlew build -x test
+      - ./gradlew clean build -x test
 run:
   command: java -jar build/libs/*.jar
-  network:
-    port: 8080
