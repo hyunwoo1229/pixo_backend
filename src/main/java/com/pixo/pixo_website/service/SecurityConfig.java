@@ -43,8 +43,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/questions").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/questions/me").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/api/question/**").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/question/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/questions/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/questions/**").authenticated()
                         .requestMatchers("/api/reservations/**").authenticated()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
