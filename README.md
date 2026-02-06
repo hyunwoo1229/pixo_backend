@@ -38,9 +38,6 @@ PIXO에 대한 소개와 카테고리 별 촬영 결과물, 가격을 볼 수 �
 * **백엔드:** 백엔드는 App Runner에서 배포되며, 빌드된 Docker 이미지는 AWS ECR에 저장되어 관리됩니다. MySQL(Amazon RDS) 와 연동하여 데이터를 관리합니다.
   
 
-* **Q&A:** JavaMilSender 사용하여 사용자가 질문 업로드하면 해당 사용자 정보, 질문 제목, 질문 내용 PIXO 직원에게 자동 전송
-  
-
 * **CI/CD 파이프라인:** GitHub Actions를 통해 자동화된 CI/CD 파이프라인을 구성하였으며, 코드 업데이트가 발생할 때마다 Vercel과 App Runner에서 자동으로 빌드 및 배포가 이루어집니다.
   
 
