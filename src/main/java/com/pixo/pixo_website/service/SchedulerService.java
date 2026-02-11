@@ -33,12 +33,8 @@ public class SchedulerService {
         }
 
         for (Member member : expiredMembers) {
-            //개인 식별 정보를 영구적으로 파기 (익명화)
             member.setName("탈퇴한 회원");
             member.setPassword(null);
-            // loginId와 status = 'DELETED'는 아이디 재사용 방지를 위해 유지
-
-            //******** 여기에 reservaionRepository.deleteByMember(member) 같이 연관된 데이터들 지울 로직 추가 가능
 
             memberRepository.saveAll(expiredMembers);
             log.info("Successfully anonymized {} members.", expiredMembers.size());

@@ -42,13 +42,10 @@ public class AdminPhotoService {
     @Value("${cloud.aws.region.static}")
     private String region;
 
-    // 1. 업로드용 Presigned URL 생성 (GCS의 generateSignedUrl 대체)
+    // 1. 업로드용 Presigned URL 생성
     @Transactional
     public Map<String, String> generateSignedUrl(String fileName, String contentType) {
-        // 고유한 파일명 생성 (GCS 로직 유지)
         String objectKey = "photos/" + UUID.randomUUID() + "_" + fileName;
-
-        // S3 PUT 전용 Presigned URL 생성 (유효시간 10분)
         URL presignedUrl = s3Template.createSignedPutURL(bucketName, objectKey, Duration.ofMinutes(10));
 
         Map<String, String> response = new HashMap<>();
@@ -58,10 +55,9 @@ public class AdminPhotoService {
         return response;
     }
 
-    // 2. DB 메타데이터 저장 (S3 URL 체계 적용)
+    // 2. DB 메타데이터 저장
     @Transactional
     public void savePhotoMetadata(PhotoRequestDto dto) {
-        // AWS S3 표준 URL 구성
         String publicUrl = String.format("https://%s.s3.%s.amazonaws.com/%s",
                 bucketName, region, dto.getSavedFileName());
 
@@ -71,7 +67,6 @@ public class AdminPhotoService {
         photo.setOriginalFileName(dto.getOriginalFileName());
         photo.setSavedFileName(dto.getSavedFileName());
 
-        // 순서 정렬 로직 (기존 유지)
         Integer maxSeq = photoRepository.findMaxSequenceByCategory(photo.getCategory());
         photo.setSequence((maxSeq == null) ? 0 : maxSeq + 1);
 
@@ -87,16 +82,14 @@ public class AdminPhotoService {
         try {
             // GCS storage.delete 대체
             s3Template.deleteObject(bucketName, photo.getSavedFileName());
-            log.info("S3 객체 삭제 성공: {}", photo.getSavedFileName());
         } catch (Exception e) {
-            log.error("S3 삭제 실패", e);
             throw new RuntimeException("S3 파일 삭제 중 오류 발생");
         }
 
         photoRepository.delete(photo);
     }
 
-    // 사진 순서 변경 로직
+    // 사진 순서 변경
     @Transactional
     public void updatePhotoOrder(List<Long> photoIds) {
         int size = photoIds.size();
@@ -105,8 +98,6 @@ public class AdminPhotoService {
             Long id = photoIds.get(i);
             Photo photo = photoRepository.findById(id)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사진을 찾을 수 없습니다."));
-
-            // 순서를 역순 혹은 정순으로 설정 (기존 로직에 맞게 조정)
             photo.setSequence(size - 1 - i);
 
             photoRepository.save(photo);

@@ -34,12 +34,10 @@ public class ImageMigrationService {
 
     @Transactional
     public String compressNextBatch(String categoryName, int batchSize) {
-        // ID가 낮은(옛날) 순서대로 가져옵니다.
         Pageable limit = PageRequest.of(0, batchSize, Sort.by("id").ascending());
         List<Photo> targets;
         long remainCount;
 
-        // 카테고리 지정 여부에 따른 조회 분기
         if (categoryName != null && !categoryName.isEmpty()) {
             try {
                 PhotoCategory category = PhotoCategory.valueOf(categoryName);

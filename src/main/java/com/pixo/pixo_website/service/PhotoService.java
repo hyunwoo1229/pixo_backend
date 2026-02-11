@@ -25,7 +25,6 @@ public class PhotoService {
 
     @Transactional
     public List<PhotoResponseDto> getPhotosByCategory(String category) {
-        // 1) String -> Enum 변환(잘못된 값이면 400)
         final PhotoCategory cat;
         try {
             cat = PhotoCategory.valueOf(category);
@@ -33,19 +32,15 @@ public class PhotoService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "허용되지 않는 카테고리: " + category);
         }
 
-        // [수정] Asc -> Desc (큰 숫자가 먼저 나옴 = 최신순/지정순서)
         List<Photo> list = photoRepository.findByCategoryOrderBySequenceDesc(cat);
 
-        // 3) (선택) *_MAIN 비었으면 기본 카테고리로 폴백
         if (list.isEmpty() && category.endsWith("_MAIN")) {
             try {
                 PhotoCategory base = PhotoCategory.valueOf(category.replace("_MAIN", ""));
-                // [수정] 폴백 데이터도 내림차순 정렬
                 list = photoRepository.findByCategoryOrderBySequenceDesc(base);
-            } catch (IllegalArgumentException ignored) { /* 무시 */ }
+            } catch (IllegalArgumentException ignored) {}
         }
 
-        // 4) DTO 매핑
         return list.stream()
                 .map(PhotoResponseDto::new)
                 .collect(Collectors.toList());

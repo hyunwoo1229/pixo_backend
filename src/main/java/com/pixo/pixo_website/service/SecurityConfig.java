@@ -38,7 +38,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
-                // CORS 설정을 명시적으로 지정합니다.
+                // CORS 설정을 명시적으로 지정
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/questions").authenticated()
@@ -53,7 +53,7 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(
                         (request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
                 ))
-                // 주입받은 customAuth2SuccessHandler를 사용합니다.
+                // 주입받은 customAuth2SuccessHandler를 사용
                 .oauth2Login(oauth -> oauth
                         .successHandler(customAuth2SuccessHandler))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
