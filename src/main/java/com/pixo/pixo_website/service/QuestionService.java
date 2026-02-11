@@ -5,10 +5,10 @@ import com.pixo.pixo_website.domain.Question;
 import com.pixo.pixo_website.dto.QuestionRequestDto;
 import com.pixo.pixo_website.dto.QuestionResponseDto;
 import com.pixo.pixo_website.repository.QuestionRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
@@ -45,18 +45,20 @@ public class QuestionService {
         mailService.sendReservationNotification("hynoo20011229@gmail.com", subject, body);
     }
 
+    @Transactional(readOnly = true)
+    public List<QuestionResponseDto> getAllQuestions() {
+        return questionRepository.findAllWithMember() // 단 1번의 쿼리로 Member까지 조회
+                .stream()
+                .map(QuestionResponseDto::fromEntity)
+                .toList();
+    }
 
-        public List<QuestionResponseDto> getAllQuestions() {
-            return questionRepository.findAll().stream()
-                    .map(QuestionResponseDto::new)
-                    .toList();
-        }
-
-        public List<QuestionResponseDto> getMyQuestions(Member member) {
-             return questionRepository.findByMember(member).stream()
-                    .map(QuestionResponseDto::new)
-                    .toList();
-        }
+    @Transactional(readOnly = true)
+    public List<QuestionResponseDto> getMyQuestions(Member member) {
+        return questionRepository.findByMember(member).stream()
+                .map(QuestionResponseDto::new)
+                .toList();
+    }
 
     @Transactional
     public void updateQuestion(Long questionId, QuestionRequestDto dto, Member member) {

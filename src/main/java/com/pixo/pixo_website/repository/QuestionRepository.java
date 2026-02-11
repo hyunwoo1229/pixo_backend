@@ -13,4 +13,9 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     List<Question> findByTitleContainingIgnoreCase(String keyword);
     List<Question> findByContentContainingIgnoreCase(String keyword);
 
+    @Query("select q from Question q " +
+            "join fetch q.member " +          // 작성자 가져오기
+            "left join fetch q.answer")
+    List<Question> findAllWithMember();
+
 }

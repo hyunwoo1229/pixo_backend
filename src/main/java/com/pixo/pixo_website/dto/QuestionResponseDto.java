@@ -3,9 +3,13 @@ package com.pixo.pixo_website.dto;
 import com.pixo.pixo_website.domain.Question;
 import com.pixo.pixo_website.dto.admin.AnswerResponseDto;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
+@NoArgsConstructor
 public class QuestionResponseDto {
     private Long id;
     private String title;
@@ -33,4 +37,18 @@ public class QuestionResponseDto {
         }
     }
 
+    public static QuestionResponseDto fromEntity(Question question) {
+        QuestionResponseDto dto = new QuestionResponseDto();
+        dto.id = question.getId();
+        dto.title = question.getTitle();
+        dto.content = question.getContent();
+
+        if (question.getMember() != null) {
+            dto.memberName = question.getMember().getName();
+        }
+
+        dto.createdAt = question.getCreatedAt();
+        dto.answered = question.getAnswered();
+        return dto;
+    }
 }

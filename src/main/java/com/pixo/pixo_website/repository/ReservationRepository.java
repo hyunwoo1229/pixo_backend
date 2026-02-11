@@ -13,4 +13,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findByReservationCodeContainingIgnoreCase(String reservationCode);
     List<Reservation> findByDate(LocalDate date);
 
+    @Query("select r from Reservation r join fetch r.member")
+    List<Reservation> findAllWithMember();
 }
