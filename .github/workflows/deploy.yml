@@ -76,4 +76,4 @@ jobs:
               -e KEYSECRET="${{ secrets.KEYSECRET }}" \
               ${{ steps.login-ecr.outputs.registry }}/pixo-backend:latest
             
-            docker image prune -f
+            docker image prune -f 
