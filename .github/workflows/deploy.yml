@@ -1,4 +1,4 @@
-name: CI/CD to AWS App Runner
+name: CI/CD to AWS EC2
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-1
+          aws-region: ap-northeast-2
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -31,3 +31,49 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
+            docker stop pixo-server || true
+            docker rm pixo-server || true
+            docker pull ${{ steps.login-ecr.outputs.registry }}/pixo-backend:latest
+            
+            docker run -d \
+              --name pixo-server \
+              -p 8080:8080 \
+              -e SPRING_DATASOURCE_URL="${{ secrets.SPRING_DATASOURCE_URL }}" \
+              -e SPRING_DATASOURCE_USERNAME="${{ secrets.SPRING_DATASOURCE_USERNAME }}" \
+              -e SPRING_DATASOURCE_PASSWORD="${{ secrets.SPRING_DATASOURCE_PASSWORD }}" \
+              -e SPRING_REDIS_HOST="localhost" \
+              -e SPRING_MAIL_HOST="${{ secrets.SPRING_MAIL_HOST }}" \
+              -e SPRING_MAIL_PORT="${{ secrets.SPRING_MAIL_PORT }}" \
+              -e SPRING_MAIL_USERNAME="${{ secrets.SPRING_MAIL_USERNAME }}" \
+              -e SPRING_MAIL_PASSWORD="${{ secrets.SPRING_MAIL_PASSWORD }}" \
+              -e SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH="${{ secrets.SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH }}" \
+              -e SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE="${{ secrets.SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE }}" \
+              -e SPRING_MAIL_PROPERTIES_MAIL_SMTP_FROM="${{ secrets.SPRING_MAIL_PROPERTIES_MAIL_SMTP_FROM }}" \
+              -e SPRING_JPA_HIBERNATE_DIALECT="${{ secrets.SPRING_JPA_HIBERNATE_DIALECT }}" \
+              -e SPRING_CLOUD_AWS_REGION_STATIC="${{ secrets.SPRING_CLOUD_AWS_REGION_STATIC }}" \
+              -e SPRING_CLOUD_AWS_CREDENTIALS_ACCESS_KEY="${{ secrets.SPRING_CLOUD_AWS_CREDENTIALS_ACCESS_KEY }}" \
+              -e SPRING_CLOUD_AWS_CREDENTIALS_SECRET_KEY="${{ secrets.SPRING_CLOUD_AWS_CREDENTIALS_SECRET_KEY }}" \
+              -e SPRING_AUTOCONFIGURE_EXCLUDE="${{ secrets.SPRING_AUTOCONFIGURE_EXCLUDE }}" \
+              -e CLOUD_AWS_S3_BUCKET="${{ secrets.CLOUD_AWS_S3_BUCKET }}" \
+              -e CLOUD_AWS_REGION_STATIC="${{ secrets.CLOUD_AWS_REGION_STATIC }}" \
+              -e CLOUD_STORAGE_BUCKET_NAME="${{ secrets.CLOUD_STORAGE_BUCKET_NAME }}" \
+              -e SERVER_PORT="${{ secrets.SERVER_PORT }}" \
+              -e SERVER_FORWARD_HEADERS_STRATEGY="${{ secrets.SERVER_FORWARD_HEADERS_STRATEGY }}" \
+              -e COOLSMS_API_KEY="${{ secrets.COOLSMS_API_KEY }}" \
+              -e COOLSMS_API_SECRET="${{ secrets.COOLSMS_API_SECRET }}" \
+              -e COOLSMS_FROM_NUMBER="${{ secrets.COOLSMS_FROM_NUMBER }}" \
+              -e GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" \
+              -e NAVER_CLIENT_SECRET="${{ secrets.NAVER_CLIENT_SECRET }}" \
+              -e KEYSECRET="${{ secrets.KEYSECRET }}" \
+              ${{ steps.login-ecr.outputs.registry }}/pixo-backend:latest
+            
+            docker image prune -f
