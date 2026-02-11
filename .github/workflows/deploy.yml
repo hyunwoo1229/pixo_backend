@@ -29,7 +29,8 @@ jobs:
           ECR_REPOSITORY: pixo-backend
           IMAGE_TAG: latest
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          # [중요] --platform linux/amd64 를 추가하여 EC2 환경과 일치시킵니다.
+          docker build --platform linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Deploy to EC2 via SSH
@@ -39,18 +40,25 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            # ECR 로그인 정보 갱신
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
+            
+            # 기존 컨테이너 중지 및 삭제
             docker stop pixo-server || true
             docker rm pixo-server || true
+            
+            # 최신 이미지 풀링
             docker pull ${{ steps.login-ecr.outputs.registry }}/pixo-backend:latest
             
+            # 컨테이너 실행 (환경 변수 자동 주입)
             docker run -d \
               --name pixo-server \
               -p 8080:8080 \
               -e SPRING_DATASOURCE_URL="${{ secrets.SPRING_DATASOURCE_URL }}" \
               -e SPRING_DATASOURCE_USERNAME="${{ secrets.SPRING_DATASOURCE_USERNAME }}" \
               -e SPRING_DATASOURCE_PASSWORD="${{ secrets.SPRING_DATASOURCE_PASSWORD }}" \
-              -e SPRING_REDIS_HOST="localhost" \
+              -e SPRING_REDIS_HOST="43.202.131.121" \
+              -e SPRING_REDIS_PORT="6379" \
               -e SPRING_MAIL_HOST="${{ secrets.SPRING_MAIL_HOST }}" \
               -e SPRING_MAIL_PORT="${{ secrets.SPRING_MAIL_PORT }}" \
               -e SPRING_MAIL_USERNAME="${{ secrets.SPRING_MAIL_USERNAME }}" \
@@ -76,4 +84,5 @@ jobs:
               -e KEYSECRET="${{ secrets.KEYSECRET }}" \
               ${{ steps.login-ecr.outputs.registry }}/pixo-backend:latest
             
-            docker image prune -f 
+            # 안 쓰는 구형 이미지 정리
+            docker image prune -f
