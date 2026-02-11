@@ -29,7 +29,7 @@ jobs:
           ECR_REPOSITORY: pixo-backend
           IMAGE_TAG: latest
         run: |
-          # [중요] --platform linux/amd64 를 추가하여 EC2 환경과 일치시킵니다.
+          # [핵심] --platform linux/amd64를 지정하여 EC2 환경에 맞는 이미지를 빌드합니다.
           docker build --platform linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
@@ -40,17 +40,14 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # ECR 로그인 정보 갱신
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
-            
-            # 기존 컨테이너 중지 및 삭제
+
             docker stop pixo-server || true
             docker rm pixo-server || true
-            
-            # 최신 이미지 풀링
+            docker rmi ${{ steps.login-ecr.outputs.registry }}/pixo-backend:latest || true
+ 
             docker pull ${{ steps.login-ecr.outputs.registry }}/pixo-backend:latest
-            
-            # 컨테이너 실행 (환경 변수 자동 주입)
+
             docker run -d \
               --name pixo-server \
               -p 8080:8080 \
@@ -83,6 +80,8 @@ jobs:
               -e NAVER_CLIENT_SECRET="${{ secrets.NAVER_CLIENT_SECRET }}" \
               -e KEYSECRET="${{ secrets.KEYSECRET }}" \
               ${{ steps.login-ecr.outputs.registry }}/pixo-backend:latest
-            
-            # 안 쓰는 구형 이미지 정리
+
+            sleep 5
+            docker logs --tail 20 pixo-server
+
             docker image prune -f
