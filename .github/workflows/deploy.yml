@@ -83,4 +83,4 @@ jobs:
             
             sleep 5
             docker logs --tail 20 pixo-backend
-            docker image prune -f
+            docker image prune -f  
