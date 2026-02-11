@@ -29,7 +29,6 @@ jobs:
           ECR_REPOSITORY: pixo-backend
           IMAGE_TAG: latest
         run: |
-          # [핵심] --platform linux/amd64를 지정하여 EC2 환경에 맞는 이미지를 빌드합니다.
           docker build --platform linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
@@ -41,15 +40,16 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
-
-            docker stop pixo-server || true
-            docker rm pixo-server || true
+            
+            # 모든 컨테이너 이름을 pixo-backend로 통일
+            docker stop pixo-backend || true
+            docker rm pixo-backend || true
             docker rmi ${{ steps.login-ecr.outputs.registry }}/pixo-backend:latest || true
- 
+            
             docker pull ${{ steps.login-ecr.outputs.registry }}/pixo-backend:latest
-
+            
             docker run -d \
-              --name pixo-server \
+              --name pixo-backend \
               -p 8080:8080 \
               -e SPRING_DATASOURCE_URL="${{ secrets.SPRING_DATASOURCE_URL }}" \
               -e SPRING_DATASOURCE_USERNAME="${{ secrets.SPRING_DATASOURCE_USERNAME }}" \
@@ -80,8 +80,7 @@ jobs:
               -e NAVER_CLIENT_SECRET="${{ secrets.NAVER_CLIENT_SECRET }}" \
               -e KEYSECRET="${{ secrets.KEYSECRET }}" \
               ${{ steps.login-ecr.outputs.registry }}/pixo-backend:latest
-
+            
             sleep 5
-            docker logs --tail 20 pixo-server
-
+            docker logs --tail 20 pixo-backend
             docker image prune -f
