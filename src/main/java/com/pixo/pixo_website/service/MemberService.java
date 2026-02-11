@@ -3,7 +3,7 @@ package com.pixo.pixo_website.service;
 import com.pixo.pixo_website.domain.Member;
 import com.pixo.pixo_website.dto.*;
 import com.pixo.pixo_website.repository.MemberRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;

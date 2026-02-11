@@ -2,25 +2,21 @@ package com.pixo.pixo_website.service;
 
 import com.pixo.pixo_website.domain.Member;
 import com.pixo.pixo_website.domain.MemberStatus;
-import com.pixo.pixo_website.dto.ErrorResponse;
 import com.pixo.pixo_website.dto.MemberRequestDto;
-import com.pixo.pixo_website.dto.SuccessResponse;
 import com.pixo.pixo_website.dto.TokenResponseDto;
 import com.pixo.pixo_website.repository.MemberRepository;
 import com.pixo.pixo_website.security.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @Service

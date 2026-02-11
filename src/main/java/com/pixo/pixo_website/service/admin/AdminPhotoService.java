@@ -6,7 +6,7 @@ import com.pixo.pixo_website.domain.admin.PhotoCategory;
 import com.pixo.pixo_website.dto.admin.PhotoRequestDto;
 import com.pixo.pixo_website.repository.admin.PhotoRepository;
 import io.awspring.cloud.s3.S3Template;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

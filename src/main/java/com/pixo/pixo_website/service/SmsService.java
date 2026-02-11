@@ -1,6 +1,6 @@
 package com.pixo.pixo_website.service;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import net.nurigo.sdk.message.exception.NurigoMessageNotReceivedException;
 import net.nurigo.sdk.message.model.Message;
 import lombok.RequiredArgsConstructor;
