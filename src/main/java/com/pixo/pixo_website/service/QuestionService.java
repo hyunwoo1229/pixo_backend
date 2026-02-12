@@ -56,7 +56,7 @@ public class QuestionService {
     @Transactional(readOnly = true)
     public List<QuestionResponseDto> getMyQuestions(Member member) {
         return questionRepository.findByMember(member).stream()
-                .map(QuestionResponseDto::new)
+                .map(QuestionResponseDto::fromEntity)
                 .toList();
     }
 
@@ -85,14 +85,14 @@ public class QuestionService {
     }
 
     public List<QuestionResponseDto> searchByTitle(String keyword) {
-        return questionRepository.findByTitleContainingIgnoreCase(keyword).stream()
-                .map(QuestionResponseDto::new)
+        return questionRepository.findByTitleWithAnswer(keyword).stream()
+                .map(QuestionResponseDto::fromEntity)
                 .toList();
     }
 
     public List<QuestionResponseDto> searchByContent(String keyword) {
-        return questionRepository.findByContentContainingIgnoreCase(keyword).stream()
-                .map(QuestionResponseDto::new)
+        return questionRepository.findByContentWithAnswer(keyword).stream()
+                .map(QuestionResponseDto::fromEntity)
                 .toList();
     }
 

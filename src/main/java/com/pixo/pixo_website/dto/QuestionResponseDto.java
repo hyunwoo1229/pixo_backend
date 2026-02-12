@@ -20,6 +20,8 @@ public class QuestionResponseDto {
     private AnswerResponseDto answer;
 
     public QuestionResponseDto(Question question) {
+        if (question == null) return;
+
         this.id = question.getId();
         this.title = question.getTitle();
         this.content = question.getContent();
@@ -38,17 +40,7 @@ public class QuestionResponseDto {
     }
 
     public static QuestionResponseDto fromEntity(Question question) {
-        QuestionResponseDto dto = new QuestionResponseDto();
-        dto.id = question.getId();
-        dto.title = question.getTitle();
-        dto.content = question.getContent();
-
-        if (question.getMember() != null) {
-            dto.memberName = question.getMember().getName();
-        }
-
-        dto.createdAt = question.getCreatedAt();
-        dto.answered = question.getAnswered();
-        return dto;
+        if (question == null) return null;
+        return new QuestionResponseDto(question);
     }
 }
