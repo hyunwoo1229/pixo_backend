@@ -5,6 +5,7 @@ import com.pixo.pixo_website.domain.admin.PhotoCategory;
 import com.pixo.pixo_website.dto.admin.CategoryDetailResponseDto;
 import com.pixo.pixo_website.dto.admin.PhotoResponseDto;
 import com.pixo.pixo_website.repository.admin.PhotoRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ public class PhotoService {
     private final PhotoRepository photoRepository;
 
     @Transactional
+    @Cacheable(value = "categoryPhotos", key = "#category")
     public List<PhotoResponseDto> getPhotosByCategory(String category) {
         final PhotoCategory cat;
         try {
@@ -46,6 +48,7 @@ public class PhotoService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "homePhotos", key = "'all'")
     public Map<String, PhotoResponseDto> getHomePhotos() {
         Map<String, PhotoResponseDto> homePhotos = new HashMap<>();
         List<PhotoCategory> mainCategories = List.of(
@@ -74,6 +77,7 @@ public class PhotoService {
         return homePhotos;
     }
 
+    @Cacheable(value = "categoryDetail", key = "#categoryId")
     public CategoryDetailResponseDto getCategoryDetailPhotos(String categoryId) {
         try {
             PhotoCategory baseCategory = PhotoCategory.valueOf(categoryId);

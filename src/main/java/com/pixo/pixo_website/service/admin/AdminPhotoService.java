@@ -6,6 +6,7 @@ import com.pixo.pixo_website.domain.admin.PhotoCategory;
 import com.pixo.pixo_website.dto.admin.PhotoRequestDto;
 import com.pixo.pixo_website.repository.admin.PhotoRepository;
 import io.awspring.cloud.s3.S3Template;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +58,7 @@ public class AdminPhotoService {
 
     // 2. DB 메타데이터 저장
     @Transactional
+    @CacheEvict(value = {"homePhotos", "categoryPhotos", "categoryDetail"}, allEntries = true)
     public void savePhotoMetadata(PhotoRequestDto dto) {
         String publicUrl = String.format("https://%s.s3.%s.amazonaws.com/%s",
                 bucketName, region, dto.getSavedFileName());
@@ -75,6 +77,7 @@ public class AdminPhotoService {
 
     // 3. 사진 삭제 (S3 객체 삭제)
     @Transactional
+    @CacheEvict(value = {"homePhotos", "categoryPhotos", "categoryDetail"}, allEntries = true)
     public void deletePhoto(Long photoId) {
         Photo photo = photoRepository.findById(photoId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -91,6 +94,7 @@ public class AdminPhotoService {
 
     // 사진 순서 변경
     @Transactional
+    @CacheEvict(value = {"homePhotos", "categoryPhotos", "categoryDetail"}, allEntries = true)
     public void updatePhotoOrder(List<Long> photoIds) {
         int size = photoIds.size();
 

@@ -41,7 +41,10 @@ jobs:
           script: |
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
             
-            # 모든 컨테이너 이름을 pixo-backend로 통일
+            docker network create pixo-network || true
+            
+            docker network connect pixo-network pixo-redis || true
+            
             docker stop pixo-backend || true
             docker rm pixo-backend || true
             docker rmi ${{ steps.login-ecr.outputs.registry }}/pixo-backend:latest || true
@@ -50,12 +53,13 @@ jobs:
             
             docker run -d \
               --name pixo-backend \
+              --network pixo-network \
               -p 8080:8080 \
               -e SPRING_DATASOURCE_URL="${{ secrets.SPRING_DATASOURCE_URL }}" \
               -e SPRING_DATASOURCE_USERNAME="${{ secrets.SPRING_DATASOURCE_USERNAME }}" \
               -e SPRING_DATASOURCE_PASSWORD="${{ secrets.SPRING_DATASOURCE_PASSWORD }}" \
-              -e SPRING_REDIS_HOST="43.202.131.121" \
-              -e SPRING_REDIS_PORT="6379" \
+              -e SPRING_REDIS_HOST="${{ secrets.SPRING_REDIS_HOST }}" \
+              -e SPRING_REDIS_PORT="${{ secrets.SPRING_REDIS_PORT }}" \
               -e SPRING_MAIL_HOST="${{ secrets.SPRING_MAIL_HOST }}" \
               -e SPRING_MAIL_PORT="${{ secrets.SPRING_MAIL_PORT }}" \
               -e SPRING_MAIL_USERNAME="${{ secrets.SPRING_MAIL_USERNAME }}" \
