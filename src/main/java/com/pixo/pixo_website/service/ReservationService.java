@@ -65,11 +65,11 @@ public class ReservationService {
 
     @Transactional(readOnly = true)
     public List<ReservationResponseDto> getReservationsByLoginId(String loginId) {
-        // 1. loginId로 Member 정보를 먼저 조회합니다.
+        // 1. loginId로 Member 정보를 먼저 조회
         Member member = memberRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 회원을 찾을 수 없습니다."));
 
-        // 2. 조회된 Member의 ID를 사용하여 예약을 조회합니다.
+        // 2. 조회된 Member의 ID를 사용하여 예약을 조회
         return reservationRepository.findByMemberId(member.getId()).stream()
                 .map(ReservationResponseDto::new)
                 .toList();
@@ -77,21 +77,17 @@ public class ReservationService {
 
     @Transactional(readOnly = true)
     public List<String> getBookedTimes(LocalDate date) {
-
         // 1. 해당 날짜에 실제 예약된 시간 목록 조회
         List<String> reservedTimes = reservationRepository.findByDate(date).stream()
                 .map(Reservation::getTime)
                 .toList();
 
-        // 2. 해당 날짜에 관리자가 막은 시간 목록 조회
-        List<String> adminBlockedTimes = blockedTimeRepository.findByBlockedDate(date).stream()
-                .map(BlockedTime::getTimeSlot)
-                .toList();
+        // 2. 관리자 차단 시간 조회
+        List<String> adminBlockedTimes = blockedTimeRepository.findTimeSlotsByBlockedDate(date);
 
-        // 3. 두 목록을 합치고 중복을 제거하여 반환
-        List<String> combinedList = Stream.concat(reservedTimes.stream(), adminBlockedTimes.stream())
+        // 3. 합치기
+        return Stream.concat(reservedTimes.stream(), adminBlockedTimes.stream())
                 .distinct()
                 .collect(Collectors.toList());
-        return combinedList;
     }
 }

@@ -24,7 +24,7 @@ public class AdminReservationService {
 
     // 전체 예약 조회
     public List<ReservationResponseDto> getAllReservations() {
-        return reservationRepository.findAll().stream()
+        return reservationRepository.findAllWithMember().stream()
                 .map(ReservationResponseDto::new)
                 .collect(Collectors.toList());
     }
@@ -44,9 +44,7 @@ public class AdminReservationService {
     }
 
     public List<String> getAdminBlockedTimes(LocalDate date) {
-        return blockedTimeRepository.findByBlockedDate(date).stream()
-                .map(BlockedTime::getTimeSlot)
-                .collect(Collectors.toList());
+        return blockedTimeRepository.findTimeSlotsByBlockedDate(date);
     }
 
     @Transactional
