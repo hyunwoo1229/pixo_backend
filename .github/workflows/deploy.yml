@@ -41,25 +41,28 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          script_stop: true
           script: |
+            set -euo pipefail
+
             cd /home/ubuntu/app
-            
+
             cat << 'EOF' > Dockerfile
-            FROM openjdk:17-jdk-slim
+            FROM eclipse-temurin:17-jre-jammy
             ARG JAR_FILE=*.jar
             COPY ${JAR_FILE} app.jar
             ENTRYPOINT ["java", "-jar", "/app.jar"]
             EOF
-            
-            docker network create pixo-network || true
-            docker network connect pixo-network pixo-mysql || true
-            
-            docker stop pixo-backend || true
-            docker rm pixo-backend || true
-            docker rmi pixo-backend:latest || true
-            
+
+            docker network create pixo-network 2>/dev/null || true
+            docker network connect pixo-network pixo-mysql 2>/dev/null || true
+
+            docker stop pixo-backend 2>/dev/null || true
+            docker rm pixo-backend 2>/dev/null || true
+            docker rmi pixo-backend:latest 2>/dev/null || true
+
             docker build -t pixo-backend:latest .
-            
+
             docker run -d \
               --name pixo-backend \
               --network pixo-network \
@@ -93,9 +96,16 @@ jobs:
               -e NAVER_CLIENT_SECRET="${{ secrets.NAVER_CLIENT_SECRET }}" \
               -e KEYSECRET="${{ secrets.KEYSECRET }}" \
               pixo-backend:latest
-            
-            sleep 5
+
+            sleep 10
+            if ! docker ps --filter "name=pixo-backend" --filter "status=running" | grep -q pixo-backend; then
+              echo "::error::pixo-backend container failed to start"
+              docker logs --tail 50 pixo-backend 2>/dev/null || true
+              exit 1
+            fi
+
+            echo "pixo-backend is running"
             docker logs --tail 20 pixo-backend
             docker image prune -f
-            
-            rm -rf *.jar Dockerfile
+
+            rm -f *.jar Dockerfile
