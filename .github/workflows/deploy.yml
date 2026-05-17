@@ -102,15 +102,22 @@ jobs:
               -e KEYSECRET="${{ secrets.KEYSECRET }}" \
               pixo-backend:latest
 
-            sleep 10
+            sleep 15
             if ! docker ps --filter "name=pixo-backend" --filter "status=running" | grep -q pixo-backend; then
               echo "::error::pixo-backend container failed to start"
-              docker logs --tail 50 pixo-backend 2>/dev/null || true
+              echo "=== Container status ==="
+              docker ps -a --filter "name=pixo-backend" || true
+              echo ""
+              echo "=== Container inspect (state) ==="
+              docker inspect pixo-backend --format '{{.State.Status}} (exit code: {{.State.ExitCode}}, error: {{.State.Error}})' || true
+              echo ""
+              echo "=== Container logs (last 200 lines, stdout + stderr) ==="
+              docker logs --tail 200 pixo-backend 2>&1 || true
               exit 1
             fi
 
             echo "pixo-backend is running"
-            docker logs --tail 20 pixo-backend
+            docker logs --tail 20 pixo-backend 2>&1
             docker image prune -f
 
             rm -f *.jar Dockerfile
