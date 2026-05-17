@@ -99,6 +99,10 @@ jobs:
               -e GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" \
               -e NAVER_CLIENT_SECRET="${{ secrets.NAVER_CLIENT_SECRET }}" \
               -e KEYSECRET="${{ secrets.KEYSECRET }}" \
+              -e CLOUD_AWS_REGION_STATIC="${{ secrets.CLOUD_AWS_REGION_STATIC }}" \
+              -e CLOUD_AWS_S3_ENDPOINT="${{ secrets.CLOUD_AWS_S3_ENDPOINT }}" \
+              -e CLOUD_OCI_NAMESPACE="${{ secrets.CLOUD_OCI_NAMESPACE }}" \
+              -e CLOUD_STORAGE_BUCKET_NAME="${{ secrets.CLOUD_STORAGE_BUCKET_NAME }}" \
               pixo-backend:latest
 
             sleep 15

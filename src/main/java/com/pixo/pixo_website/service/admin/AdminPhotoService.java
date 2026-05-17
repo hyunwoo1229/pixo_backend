@@ -43,6 +43,9 @@ public class AdminPhotoService {
     @Value("${cloud.aws.region.static}")
     private String region;
 
+    @Value("${cloud.oci.namespace}")
+    private String namespace;
+
     // 1. 업로드용 Presigned URL 생성
     @Transactional
     public Map<String, String> generateSignedUrl(String fileName, String contentType) {
@@ -60,8 +63,11 @@ public class AdminPhotoService {
     @Transactional
     @CacheEvict(value = {"homePhotos", "categoryPhotos", "categoryDetail"}, allEntries = true)
     public void savePhotoMetadata(PhotoRequestDto dto) {
-        String publicUrl = String.format("https://%s.s3.%s.amazonaws.com/%s",
-                bucketName, region, dto.getSavedFileName());
+        //String publicUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, dto.getSavedFileName());
+
+        String publicUrl = String.format(
+                "https://objectstorage.%s.oraclecloud.com/n/%s/b/%s/o/%s",
+                region, namespace, bucketName, dto.getSavedFileName());
 
         Photo photo = new Photo();
         photo.setCategory(PhotoCategory.valueOf(dto.getCategory()));
