@@ -60,7 +60,6 @@ jobs:
             printf 'FROM eclipse-temurin:21-jre-jammy\nARG JAR_FILE=*.jar\nCOPY ${JAR_FILE} app.jar\nENTRYPOINT ["java", "-jar", "/app.jar"]\n' > Dockerfile
 
             docker network create pixo-network 2>/dev/null || true
-            docker network connect pixo-network pixo-mysql 2>/dev/null || true
 
             docker stop pixo-backend 2>/dev/null || true
             docker rm pixo-backend 2>/dev/null || true
@@ -73,8 +72,8 @@ jobs:
               --network pixo-network \
               -p 8080:8080 \
               -e SPRING_DATASOURCE_URL="${{ secrets.SPRING_DATASOURCE_URL }}" \
-              -e SPRING_DATASOURCE_USERNAME="root" \
-              -e SPRING_DATASOURCE_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+              -e SPRING_DATASOURCE_USERNAME="${{ secrets.SPRING_DATASOURCE_USERNAME }}" \
+              -e SPRING_DATASOURCE_PASSWORD="${{ secrets.SPRING_DATASOURCE_PASSWORD }}" \
               -e SPRING_JPA_HIBERNATE_DIALECT="${{ secrets.SPRING_JPA_HIBERNATE_DIALECT }}" \
               -e SPRING_DATA_REDIS_HOST="${{ secrets.SPRING_DATA_REDIS_HOST }}" \
               -e SPRING_DATA_REDIS_PORT="${{ secrets.SPRING_DATA_REDIS_PORT }}" \
