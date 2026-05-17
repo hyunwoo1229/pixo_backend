@@ -34,6 +34,7 @@ jobs:
           source: "build/libs/*.jar"
           target: "/home/ubuntu/app/"
           strip_components: 2
+          overwrite: true
 
       - name: Deploy to OCI via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -46,6 +47,15 @@ jobs:
             set -euo pipefail
 
             cd /home/ubuntu/app
+
+            rm -f *-plain.jar
+
+            JAR_COUNT=$(ls -1 *.jar 2>/dev/null | wc -l)
+            if [ "$JAR_COUNT" -ne 1 ]; then
+              echo "::error::Expected exactly 1 JAR file, found $JAR_COUNT"
+              ls -la *.jar 2>/dev/null || true
+              exit 1
+            fi
 
             printf 'FROM eclipse-temurin:17-jre-jammy\nARG JAR_FILE=*.jar\nCOPY ${JAR_FILE} app.jar\nENTRYPOINT ["java", "-jar", "/app.jar"]\n' > Dockerfile
 
