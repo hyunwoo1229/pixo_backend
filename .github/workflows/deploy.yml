@@ -12,10 +12,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
           cache: gradle
 
@@ -57,7 +57,7 @@ jobs:
               exit 1
             fi
 
-            printf 'FROM eclipse-temurin:17-jre-jammy\nARG JAR_FILE=*.jar\nCOPY ${JAR_FILE} app.jar\nENTRYPOINT ["java", "-jar", "/app.jar"]\n' > Dockerfile
+            printf 'FROM eclipse-temurin:21-jre-jammy\nARG JAR_FILE=*.jar\nCOPY ${JAR_FILE} app.jar\nENTRYPOINT ["java", "-jar", "/app.jar"]\n' > Dockerfile
 
             docker network create pixo-network 2>/dev/null || true
             docker network connect pixo-network pixo-mysql 2>/dev/null || true
