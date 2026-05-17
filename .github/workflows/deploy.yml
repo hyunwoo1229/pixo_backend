@@ -47,12 +47,7 @@ jobs:
 
             cd /home/ubuntu/app
 
-            cat << 'EOF' > Dockerfile
-            FROM eclipse-temurin:17-jre-jammy
-            ARG JAR_FILE=*.jar
-            COPY ${JAR_FILE} app.jar
-            ENTRYPOINT ["java", "-jar", "/app.jar"]
-            EOF
+            printf 'FROM eclipse-temurin:17-jre-jammy\nARG JAR_FILE=*.jar\nCOPY ${JAR_FILE} app.jar\nENTRYPOINT ["java", "-jar", "/app.jar"]\n' > Dockerfile
 
             docker network create pixo-network 2>/dev/null || true
             docker network connect pixo-network pixo-mysql 2>/dev/null || true
