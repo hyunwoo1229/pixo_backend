@@ -44,7 +44,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script_stop: true
           script: |
-            set -euo pipefail
+            set -eo pipefail
 
             cd /home/ubuntu/app
 
