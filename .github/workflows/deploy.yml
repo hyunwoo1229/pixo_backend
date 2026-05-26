@@ -113,6 +113,12 @@ jobs:
             --from-literal=GOOGLE_CLIENT_SECRET='${{ secrets.GOOGLE_CLIENT_SECRET }}' \
             --from-literal=NAVER_CLIENT_SECRET='${{ secrets.NAVER_CLIENT_SECRET }}' \
             --from-literal=KEYSECRET='${{ secrets.KEYSECRET }}' \
+            --from-literal=MANAGEMENT_SERVER_PORT='9090' \
+            --from-literal=MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE='health,info,prometheus' \
+            --from-literal=MANAGEMENT_ENDPOINTS_WEB_BASE_PATH='/actuator' \
+            --from-literal=MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED='true' \
+            --from-literal=MANAGEMENT_METRICS_TAGS_APPLICATION='pixo-backend' \
+            --from-literal=MANAGEMENT_PROMETHEUS_METRICS_EXPORT_ENABLED='true' \
             --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Apply k3s manifests
@@ -142,7 +148,10 @@ jobs:
                     image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.sha }}
                     imagePullPolicy: IfNotPresent
                     ports:
-                      - containerPort: 8080
+                      - name: http
+                        containerPort: 8080
+                      - name: metrics
+                        containerPort: 9090
                     envFrom:
                       - secretRef:
                           name: pixo-env
@@ -179,7 +188,8 @@ jobs:
             selector:
               app: pixo-backend
             ports:
-              - port: 8080
+              - name: http
+                port: 8080
                 targetPort: 8080
             type: ClusterIP
           EOF
