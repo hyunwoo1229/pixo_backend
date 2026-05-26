@@ -136,7 +136,7 @@ jobs:
                   app: pixo-backend
               spec:
                 nodeSelector:
-                  workload: pixo
+                  workload: home
                 containers:
                   - name: backend
                     image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.sha }}
