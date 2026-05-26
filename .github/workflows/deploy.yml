@@ -148,11 +148,11 @@ jobs:
                           name: pixo-env
                     resources:
                       requests:
-                        memory: "384Mi"
-                        cpu: "100m"
+                        memory: "512Mi"
+                        cpu: "200m"
                       limits:
-                        memory: "768Mi"
-                        cpu: "1000m"
+                        memory: "1Gi"
+                        cpu: "1500m"
                     startupProbe:
                       tcpSocket:
                         port: 8080
